@@ -1,0 +1,4 @@
+#Read Me
+
+这是一个Android客户端的相册软件，使用大量自定义View，以及Glide、RxJava等优秀框架。时间问题注释会比较少，但后面我会慢慢补上。
+主要的自定义View是配合RecyclerView使用的ZoomLayoutManager、ImageGroupedAdapter和ImageNoGroupedAdapter，在views文件夹内，它们搭配在一起使用能够产生可缩放图片的相册列表（使用ImageGroupedAdapter时可以按照分组显示）。相关的技术博客可以查看我的博客http://blog.csdn.net/zuguorui
