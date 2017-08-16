@@ -1,0 +1,11 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="action_bar_text_size">17sp</dimen>
+    <dimen name="action_bar_height">20dp</dimen>
+    <dimen name="action_bar_img_height">40dp</dimen>
+    <dimen name="action_bar_img_width">40dp</dimen>
+    <dimen name="slide_menu_text_size">16sp</dimen>
+    <integer name="default_port_number">2121</integer>
+</resources>

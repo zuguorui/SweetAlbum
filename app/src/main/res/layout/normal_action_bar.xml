@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical">
+    <com.zu.sweetalbum.view.TextViewPagerIndicator
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:indicatorColor="#ff5499"
+        app:indicatorHeight="4dp"
+        app:textSize="6sp"
+        app:textColor="#000000"
+        app:intervalBetweenTags="20dp"
+        android:id="@+id/NormalActionBar_viewPagerIndicator"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        app:balanceLayout="false"
+
+        >
+
+    </com.zu.sweetalbum.view.TextViewPagerIndicator>
+
+    <!--<ImageButton-->
+        <!--android:layout_width="40dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:layout_marginRight="0dp"-->
+        <!--android:id="@+id/NormalActionBar_imageButton_ppt"-->
+        <!--android:background="@drawable/play_000000_128"-->
+        <!--android:scaleType="centerCrop"/>-->
+</LinearLayout>

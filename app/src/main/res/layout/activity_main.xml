@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <include
+        layout="@layout/activity_action_bar"
+        android:id="@+id/MainActivity_ActionBar"/>
+    <com.zu.sweetalbum.view.SlideLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/MainActivity_root">
+        
+        <com.zu.sweetalbum.view.MyViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="3dp"
+            android:id="@+id/MainActivity_ViewPager"
+            >
+
+        </com.zu.sweetalbum.view.MyViewPager>
+        <include layout="@layout/menu_main_activity_slide"/>
+
+    </com.zu.sweetalbum.view.SlideLayout>
+
+</LinearLayout>
+

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_file_browser"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.zu.sweetalbum.activity.FileBrowserActivity">
+    <include layout="@layout/activity_action_bar"
+        android:id="@+id/FileBrowserActivity_actionBar"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="/sdcard/NubiaTester"
+        android:padding="2dp"
+        android:maxLines="1"
+        android:id="@+id/FileBrowserActivity_textView_path"/>
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/FileBrowserActivity_listView_files"
+        ></ListView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="取消"
+            android:id="@+id/FileBrowserActivity_button_cancel"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="选择"
+            android:id="@+id/FileBrowserActivity_button_select_current"/>
+
+    </LinearLayout>
+
+</LinearLayout>

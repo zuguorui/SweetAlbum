@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/ImageCheckActivity_root"
+    tools:context="com.zu.sweetalbum.activity.ImageCheckActivity">
+    <com.zu.sweetalbum.view.TouchEventInterceptLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ImageCheckActivity_touchEventInterceptLayout">
+        <com.zu.sweetalbum.view.ImageSwitchView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/ImageCheckActivity_imageSwitchView"/>
+    </com.zu.sweetalbum.view.TouchEventInterceptLayout>
+
+
+    <include
+        layout="@layout/activity_action_bar"
+        android:id="@+id/ImageCheckActivity_ActionBar"
+        />
+
+</FrameLayout>

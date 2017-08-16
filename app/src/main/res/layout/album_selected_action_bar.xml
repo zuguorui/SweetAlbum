@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="right|center_vertical"
+    >
+    <!--<ImageView-->
+        <!--android:layout_width="@dimen/action_bar_img_width"-->
+        <!--android:layout_height="@dimen/action_bar_img_height"-->
+        <!--android:src="@drawable/copy_000000_128"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:background="@drawable/image_button_background"-->
+        <!--android:id="@+id/AlbumSelectionActionBar_imageButton_copy"/>-->
+    <!--<ImageView-->
+        <!--android:layout_width="@dimen/action_bar_img_width"-->
+        <!--android:layout_height="@dimen/action_bar_img_height"-->
+        <!--android:src="@drawable/cut_000000_128"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:background="@drawable/image_button_background"-->
+        <!--android:id="@+id/AlbumSelectionActionBar_imageButton_cut"/>-->
+    <!--<ImageView-->
+        <!--android:layout_width="@dimen/action_bar_img_width"-->
+        <!--android:layout_height="@dimen/action_bar_img_height"-->
+        <!--android:src="@drawable/select_all_000000_128"-->
+        <!--android:scaleType="fitXY"-->
+        <!--android:background="@drawable/image_button_background"-->
+        <!--android:id="@+id/AlbumSelectionActionBar_imageButton_selectAll"/>-->
+    <ImageView
+        android:layout_width="@dimen/action_bar_img_width"
+        android:layout_height="@dimen/action_bar_img_height"
+        android:src="@drawable/folder_000000_128"
+        android:scaleType="fitXY"
+        android:background="@drawable/image_button_background"
+        android:id="@+id/AlbumSelectionActionBar_imageButton_toFolder"
+        android:visibility="gone"/>
+    <ImageView
+        android:layout_width="@dimen/action_bar_img_width"
+        android:layout_height="@dimen/action_bar_img_height"
+        android:src="@drawable/delete_000000_128"
+        android:scaleType="fitXY"
+        android:background="@drawable/image_button_background"
+        android:id="@+id/AlbumSelectionActionBar_imageButton_delete"/>
+
+
+</LinearLayout>

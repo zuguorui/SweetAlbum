@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">饭饭相册</string>
+    <string name="popup_menu_item_copy">复制</string>
+    <string name="popup_menu_item_cut">剪切</string>
+    <string name="popup_menu_item_delete">删除</string>
+    <string name="popup_menu_item_rename">重命名</string>
+    <string name="popup_menu_item_info">详细信息</string>
+    <string name="popup_menu_item_set_wallpaper">设为壁纸</string>
+    <string name="storage_warning">
+        Warning: storage is not available. You may want to unmount it.
+    </string>
+    <string name="set_wall_paper_on_low_version">由于该设备版本低于7.0,仅能同时设置桌面和锁屏壁纸。您可以选择使用其他应用查看是否能设置。是否仍要继续设置？</string>
+    <string name="notification_server_starting">Starting at %s</string>
+    <string name="notification_title">无线传图正在运行</string>
+    <string name="notification_text">地址： %s</string>
+    <string name="notification_stop_text">关闭服务</string>
+    <string name="nsd_servername_postfix">FTP Server</string>
+    <string name="ftp_help">Tips: 无线传图需要在连接wifi的情况下才能使用。启动FTP服务器后，只需要在连接同一局域网的电脑的资源管理器或者浏览器中输入上方的FTP服务器地址即可访问本机存储并进行操作，点击目录可以修改FTP的根目录。如果手机息屏后连接异常，可打开保持设备唤醒。</string>
+
+</resources>

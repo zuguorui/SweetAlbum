@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <item android:title="@string/popup_menu_item_rename"
+        android:id="@+id/PopupMenu_imageRename"/>
+    <item android:title="@string/popup_menu_item_copy"
+        android:id="@+id/PopupMenu_imageCopy"/>
+    <item android:title="@string/popup_menu_item_cut"
+        android:id="@+id/PopupMenu_imageCut"/>
+    <item android:title="@string/popup_menu_item_delete"
+        android:id="@+id/PopupMenu_imageDelete"/>
+    <item android:title="@string/popup_menu_item_set_wallpaper"
+        android:id="@+id/PopupMenu_imageSetWallPaper"/>
+    <item android:title="@string/popup_menu_item_info"
+        android:id="@+id/PopupMenu_imageInfo"/>
+</menu>

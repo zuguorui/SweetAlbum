@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+
+    android:gravity="center_vertical"
+    android:background="#eeeeee"
+    >
+    <ImageView
+        android:layout_height="@dimen/action_bar_img_height"
+        android:layout_width = "@dimen/action_bar_img_width"
+        android:background="@drawable/image_button_background"
+        android:id="@+id/MainActivity_ActionBar_slideIndicator"
+
+        android:clickable="true"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:id="@+id/MainActivity_actionBar_custom_area">
+
+    </FrameLayout>
+
+
+
+
+</LinearLayout>
