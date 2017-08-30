@@ -4,57 +4,85 @@
     android:layout_width="200dp"
     android:layout_height="match_parent"
     android:clickable="true"
-    android:gravity="center"
     android:background="#ffffff">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:gravity="center_vertical"
-        android:id="@+id/SlideMenu_ftp_trans"
-        android:background="@drawable/image_button_background">
+        android:id="@+id/SlideMenu_layout_dailyWallpaperContainer">
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/wlan_000000_128"
-            android:scaleType="centerCrop"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/SlideMenu_imageView_dailyWallpaper"
+            android:clickable="true"/>
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="4dp"
+            android:maxLines="1"
+            android:textColor="#ffffff"
+            android:id="@+id/SlideMenu_textView_dailyWallpaperTitle"/>
+    </FrameLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="#000000"
-            android:textSize="@dimen/slide_menu_text_size"
-            android:text="无线传图"
-            android:layout_marginLeft="3dp"
-            />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:gravity="center_vertical"
-        android:id="@+id/SlideMenu_about"
-        android:background="@drawable/image_button_background">
-        <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@drawable/about_000000_128"
-            android:scaleType="centerCrop"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:textColor="#000000"
-            android:textSize="@dimen/slide_menu_text_size"
-            android:text="关于"
-            android:layout_marginLeft="3dp"
-            />
-    </LinearLayout>
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center_vertical"
+                android:id="@+id/SlideMenu_ftp_trans"
+                android:background="@drawable/image_button_background">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/wlan_000000_128"
+                    android:scaleType="centerCrop"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/slide_menu_text_size"
+                    android:text="无线传图"
+                    android:layout_marginLeft="3dp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:gravity="center_vertical"
+                android:id="@+id/SlideMenu_about"
+                android:background="@drawable/image_button_background">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/about_000000_128"
+                    android:scaleType="centerCrop"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:textColor="#000000"
+                    android:textSize="@dimen/slide_menu_text_size"
+                    android:text="关于"
+                    android:layout_marginLeft="3dp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+
 
 
 
