@@ -53,12 +53,19 @@ import com.zu.sweetalbum.view.SlideLayout;
 import com.zu.sweetalbum.view.TextViewPagerIndicator;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.concurrent.Callable;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_COPY;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_CUT;
@@ -131,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private View ftpTransButton;
     private View aboutButton;
 
+    private ImageView dailyWallpaper;
+
     private boolean allowViewPagerScroll = true;
     public static final int COPY_REQUEST_CODE = 1;
     public static final int CUT_REQUEST_CODE = 2;
@@ -147,30 +156,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean imageSelectAll = false;
     private ProgressDialogProxy progressDialogProxy = null;
     private ArrayList<String> selectedImages = new ArrayList<>();
-    private Handler updateDialogHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what)
-            {
-                case FileUtil.DELETE_IMAGE:
-                    if(progressDialogProxy != null)
-                    {
-                        if(msg.arg1 == -1)
-                        {
-                            progressDialogProxy.dismiss();
-                            progressDialogProxy = null;
-                        }else
-                        {
-                            String message = "正在删除第" + msg.arg1 + "张，共" + selectedImages.size() + "张";
-                            progressDialogProxy.setMessage(message);
-                            progressDialogProxy.setProgress(msg.arg1);
-                        }
-                    }
-                    break;
-            }
-            return true;
-        }
-    });
+    private String dailyWallpaperPath;
+
 
     private void initNormalActionBar()
     {
@@ -519,6 +506,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    private void prepareDailyWallpaper()
+    {
+        Observable.fromCallable(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                String result = "";
+                String folderPath = getExternalFilesDir(null).getPath() + "/DailyWallPaper/";
+                String path = folderPath + "BingPaper-" + new SimpleDateFormat("yyyy-MM-dd").format(System.currentTimeMillis()) + ".jpg";
+                File folder = new File(folderPath);
+                if(!folder.exists())
+                {
+                    folder.mkdirs();
+                }
+
+
+                return result;
+            }
+        }).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<String>() {
+                    @Override
+                    public void accept(@NonNull String s) throws Exception {
+
+                    }
+                });
+    }
+
     private void requestNeededPermission()
     {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -596,6 +615,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         slideIndicator = (ImageView)findViewById(R.id.MainActivity_ActionBar_slideIndicator);
         slideLayout = (SlideLayout)findViewById(R.id.MainActivity_root);
+
+        dailyWallpaper = (ImageView)findViewById(R.id.SlideMenu_imageView_dailyWallpaper);
+        dailyWallpaper.setOnClickListener(this);
         ftpTransButton = findViewById(R.id.SlideMenu_ftp_trans);
         ftpTransButton.setOnClickListener(this);
         aboutButton = findViewById(R.id.SlideMenu_about);
