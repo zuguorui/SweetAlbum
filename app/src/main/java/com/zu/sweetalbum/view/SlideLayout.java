@@ -76,26 +76,42 @@ public class SlideLayout extends FrameLayout {
 
     private void initViews()
     {
+        if(slideView != null && contentView != null)
+        {
+            if(slideView.getWidth() != slideViewWidth)
+            {
+                slideViewWidth = slideView.getWidth();
+                rootWidth = this.getWidth();
+                MarginLayoutParams layoutParams = (MarginLayoutParams) slideView.getLayoutParams();
+                layoutParams.leftMargin =  - layoutParams.width;
+                slideView.setLayoutParams(layoutParams);
+            }
 
-        contentView = this.getChildAt(0);
-        slideView = this.getChildAt(1);
-        MarginLayoutParams layoutParams = (MarginLayoutParams) slideView.getLayoutParams();
-        layoutParams.leftMargin = - layoutParams.width;
-        slideViewWidth = layoutParams.width;
-        slideView.setLayoutParams(layoutParams);
 
-        contentView.setClickable(true);
-        contentView.setLongClickable(true);
 
-        slideView.setClickable(true);
-        slideView.setLongClickable(true);
+        }else
+        {
+            contentView = this.getChildAt(0);
+            slideView = this.getChildAt(1);
+            MarginLayoutParams layoutParams = (MarginLayoutParams) slideView.getLayoutParams();
+            layoutParams.leftMargin = - layoutParams.width;
+            slideViewWidth = layoutParams.width;
+            slideView.setLayoutParams(layoutParams);
 
-        rootWidth = getViewWidth(this);
+            contentView.setClickable(true);
+            contentView.setLongClickable(true);
 
-        shadowView = new ImageView(getContext());
-        shadowView.setBackgroundColor(Color.parseColor("#000000"));
-        shadowView.setAlpha(0f);
-        this.addView(shadowView,1);
+            slideView.setClickable(true);
+            slideView.setLongClickable(true);
+
+            rootWidth = getViewWidth(this);
+
+            shadowView = new ImageView(getContext());
+            shadowView.setBackgroundColor(Color.parseColor("#000000"));
+            shadowView.setAlpha(0f);
+            this.addView(shadowView,1);
+        }
+
 
         Log.v("Slide layout", "init view");
     }
@@ -103,10 +119,7 @@ public class SlideLayout extends FrameLayout {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if(changed)
-        {
-            initViews();
-        }
+        initViews();
 
     }
 

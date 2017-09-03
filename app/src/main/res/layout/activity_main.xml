@@ -23,7 +23,8 @@
             >
 
         </com.zu.sweetalbum.view.MyViewPager>
-        <include layout="@layout/menu_main_activity_slide"/>
+        <include layout="@layout/menu_main_activity_slide"
+            android:id="@+id/MainActivity_slideMenu"/>
 
     </com.zu.sweetalbum.view.SlideLayout>
 

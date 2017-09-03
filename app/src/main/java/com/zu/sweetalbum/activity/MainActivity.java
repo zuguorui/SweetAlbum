@@ -3,6 +3,7 @@ package com.zu.sweetalbum.activity;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -24,6 +25,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,10 +33,12 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.fragment.DateSortedFragment;
 import com.zu.sweetalbum.fragment.FolderSortedFragment;
@@ -52,12 +56,21 @@ import com.zu.sweetalbum.view.MyViewPager;
 import com.zu.sweetalbum.view.SlideLayout;
 import com.zu.sweetalbum.view.TextViewPagerIndicator;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Callable;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -74,19 +87,6 @@ import static com.zu.sweetalbum.activity.SelectFolderActivity.SELECTED_IMAGES;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private static final int PERMISSIONS_REQUEST_CODE = 10;
-
-//    private AlbumService albumService = null;
-//    private ServiceConnection connection = new ServiceConnection() {
-//        @Override
-//        public void onServiceConnected(ComponentName name, IBinder service) {
-//            albumService = (AlbumService) ((AlbumService.AlbumBinder)service).getService();
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName name) {
-//
-//        }
-//    };
 
     private CompositeDisposable mDisposables = new CompositeDisposable();
     private Consumer messageConsumer = new Consumer<Event>() {
@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private View ftpTransButton;
     private View aboutButton;
 
+    private View slideMenu;
+
     private ImageView dailyWallpaper;
 
     private boolean allowViewPagerScroll = true;
@@ -147,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final int SHARE_REQUEST_CODE = 4;
 
     private int currentActionBar = 0;
+
 
     private static final int NORMAL_ACTION_BAR_CODE = 0;
     private static final int SELECT_IMAGE_ACTION_BAR_CODE = 1;
@@ -509,6 +512,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
+        prepareDailyWallpaper();
     }
 
     private void prepareDailyWallpaper()
@@ -524,6 +528,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 {
                     folder.mkdirs();
                 }
+                File imgFile = new File(path);
+                if(imgFile.exists())
+                {
+                    dailyWallpaperPath = path;
+                    return dailyWallpaperPath;
+                }
+
+                URL url = new URL(getString(R.string.bing_img_high_url));
+                HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+                connection.setRequestMethod("GET");
+//                if(connection instanceof HttpsURLConnection)
+//                {
+//                    SSLContext sslContext = SSLContext.getDefault();
+//                }
+                connection.connect();
+                if(connection.getResponseCode() != HttpURLConnection.HTTP_OK)
+                {
+
+                    return "";
+                }
+                InputStream in = connection.getInputStream();
+                OutputStream out = new FileOutputStream(imgFile);
+                byte[] buffer = new byte[100];
+                int readBytes = 0;
+                try{
+                    while((readBytes = in.read(buffer)) != -1)
+                    {
+                        out.write(buffer, 0, readBytes);
+                    }
+                    result = path;
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }finally {
+                    try{
+                        if(in != null)
+                        {
+                            in.close();
+                        }
+                        if(out != null)
+                        {
+                            out.close();
+                        }
+                    }catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
 
 
                 return result;
@@ -533,7 +585,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .subscribe(new Consumer<String>() {
                     @Override
                     public void accept(@NonNull String s) throws Exception {
-
+                        if(s != null && !s.equals(""))
+                        {
+                            Glide.with(MainActivity.this)
+                                    .load(new File(s))
+                                    .centerCrop()
+                                    .into(dailyWallpaper);
+                        }
                     }
                 });
     }
@@ -615,7 +673,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         slideIndicator = (ImageView)findViewById(R.id.MainActivity_ActionBar_slideIndicator);
         slideLayout = (SlideLayout)findViewById(R.id.MainActivity_root);
-
+        slideMenu = findViewById(R.id.MainActivity_slideMenu);
+        slideLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int width = (int)(slideLayout.getWidth() * 0.75f);
+                ViewGroup.LayoutParams layoutParams = slideMenu.getLayoutParams();
+                layoutParams.width = width;
+                slideMenu.setLayoutParams(layoutParams);
+                slideLayout.requestLayout();
+            }
+        });
         dailyWallpaper = (ImageView)findViewById(R.id.SlideMenu_imageView_dailyWallpaper);
         dailyWallpaper.setOnClickListener(this);
         ftpTransButton = findViewById(R.id.SlideMenu_ftp_trans);
