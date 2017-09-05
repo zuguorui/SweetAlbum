@@ -43,6 +43,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.util.LruCache;
+import com.zu.sweetalbum.App;
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.module.ImageModule;
 import com.zu.sweetalbum.util.CommonUtil;
@@ -730,7 +731,7 @@ public class ImageCheckActivity extends AppCompatActivity implements View.OnClic
             if(bitmap == null || bitmap.isRecycled())
             {
                 log.d("bitmap == null");
-                Glide.with(ImageCheckActivity.this)
+                Glide.with(App.getAppContext())
                         .load(new File(m.path))
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)

@@ -91,17 +91,19 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activity.AboutActivity"></activity>
-        
+        <activity android:name=".activity.AboutActivity" />
+
         <provider
-            android:authorities="com.zu.sweetalbum"
             android:name="android.support.v4.content.FileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:authorities="com.zu.sweetalbum"
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_path"/>
+                android:resource="@xml/file_path" />
         </provider>
+
+        <activity android:name=".activity.UnSplashActivity"></activity>
     </application>
 
 </manifest>

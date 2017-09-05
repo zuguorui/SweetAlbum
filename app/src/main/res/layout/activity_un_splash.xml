@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <include
+        layout="@layout/activity_action_bar"
+        android:id="@+id/UNSPLASHActivity_ActionBar"/>
+    <com.zu.sweetalbum.view.TextViewPagerIndicator
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        app:balanceLayout="true"
+        app:indicatorHeight="4dp"
+        app:textSize="6sp"
+        app:indicatorColor="@color/colorAccent"
+        android:id="@+id/UNSPLASHActivity_viewPagerIndicator"
+        ></com.zu.sweetalbum.view.TextViewPagerIndicator>
+    <com.zu.sweetalbum.view.MyViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="3dp"
+        android:id="@+id/UNSPLASHActivity_ViewPager"
+        >
+
+    </com.zu.sweetalbum.view.MyViewPager>
+
+</LinearLayout>

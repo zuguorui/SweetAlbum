@@ -72,8 +72,7 @@ import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
 
 public class AlbumService extends Service {
 
-    private static final String appId = "e042b370a2001c6ab6754b296c1fee8935e6aa0240ef54ca8871109cb12913c6";
-    private static final String secret = "a8f18a39f5fcfcb34b2e128f4b775d484fa4515981d7b77574a746c64800fe73";
+
 
     private MyLog log = new MyLog("AlbumService", true);
     public class AlbumBinder extends Binder{
