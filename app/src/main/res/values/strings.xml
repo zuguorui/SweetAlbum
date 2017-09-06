@@ -18,4 +18,5 @@
     <string name="ftp_help">Tips: 无线传图需要在连接wifi的情况下才能使用。启动FTP服务器后，只需要在连接同一局域网的电脑的资源管理器或者浏览器中输入上方的FTP服务器地址即可访问本机存储并进行操作，点击目录可以修改FTP的根目录。如果手机息屏后连接异常，可打开保持设备唤醒。</string>
     <string name="bing_img_low_url">https://api.dujin.org/bing/1366.php</string>
     <string name="bing_img_high_url">https://api.dujin.org/bing/1920.php</string>
+    <string name="unsplash">UNSPLASH</string>
 </resources>

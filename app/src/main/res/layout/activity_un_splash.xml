@@ -7,22 +7,28 @@
     <include
         layout="@layout/activity_action_bar"
         android:id="@+id/UNSPLASHActivity_ActionBar"/>
-    <com.zu.sweetalbum.view.TextViewPagerIndicator
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        app:balanceLayout="true"
-        app:indicatorHeight="4dp"
-        app:textSize="6sp"
-        app:indicatorColor="@color/colorAccent"
-        android:id="@+id/UNSPLASHActivity_viewPagerIndicator"
-        ></com.zu.sweetalbum.view.TextViewPagerIndicator>
-    <com.zu.sweetalbum.view.MyViewPager
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="3dp"
-        android:id="@+id/UNSPLASHActivity_ViewPager"
-        >
+        android:id="@+id/UNSPLASHActivity_frameLayout_container">
+        <com.zu.sweetalbum.view.TextViewPagerIndicator
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            app:balanceLayout="true"
+            app:indicatorHeight="4dp"
+            app:textSize="6sp"
+            app:indicatorColor="@color/colorAccent"
+            android:id="@+id/UNSPLASHActivity_viewPagerIndicator"
+            ></com.zu.sweetalbum.view.TextViewPagerIndicator>
+        <com.zu.sweetalbum.view.MyViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="3dp"
+            android:id="@+id/UNSPLASHActivity_ViewPager"
+            >
 
-    </com.zu.sweetalbum.view.MyViewPager>
+        </com.zu.sweetalbum.view.MyViewPager>
+    </FrameLayout>
+
 
 </LinearLayout>

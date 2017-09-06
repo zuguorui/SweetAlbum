@@ -11,6 +11,7 @@
         android:maxLines="1"
         android:textColor="@color/action_bar_text_color"
         android:textSize="@dimen/action_bar_text_size"
+        android:text="@string/unsplash"
         android:id="@+id/UnSplashActionBar_textView_albumName"/>
     <ImageView
         android:layout_width="@dimen/action_bar_img_width"
