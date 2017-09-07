@@ -3,6 +3,7 @@ package com.zu.sweetalbum.activity;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -54,7 +55,14 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
                 actionBarContainer.getPaddingRight(), actionBarContainer.getPaddingBottom());
 
         layoutParams = (ViewGroup.MarginLayoutParams) viewPagerIndicator.getLayoutParams();
-        layoutParams.topMargin = -layoutParams.height;
+        int indicatorHeight = layoutParams.height;
+
+
+        layoutParams = (ViewGroup.MarginLayoutParams)mViewPager.getLayoutParams();
+        layoutParams.topMargin = indicatorHeight;
+        mViewPager.setLayoutParams(layoutParams);
+
+
 
 
 
@@ -65,4 +73,24 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View view) {
 
     }
+
+    private View.OnTouchListener mOnTouchListener = new View.OnTouchListener() {
+        private int touchSlop = 4;
+        private int oldX, oldY, newX, newY, dx, dy;
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+
+            int count = motionEvent.getPointerCount();
+            if(count >= 2)
+            {
+                return false;
+            }
+            switch (motionEvent.getActionMasked())
+            {
+                case MotionEvent.ACTION_DOWN:
+
+            }
+            return false;
+        }
+    };
 }
