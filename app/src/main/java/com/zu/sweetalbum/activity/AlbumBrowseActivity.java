@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,12 +22,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.util.LruCache;
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.module.ImageModule;
 import com.zu.sweetalbum.util.CommonUtil;
-import com.zu.sweetalbum.util.Comparators;
-import com.zu.sweetalbum.util.Function;
+import com.zu.sweetalbum.module.Function;
 import com.zu.sweetalbum.util.ImageOperations;
 import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.util.rxbus.Event;
@@ -37,14 +34,8 @@ import com.zu.sweetalbum.view.AlbumListView.ImageNoGroupedAdapter;
 import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
 import com.zu.sweetalbum.view.CheckableView;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.TreeMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;

@@ -3,31 +3,17 @@ package com.zu.sweetalbum.activity;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
-import android.app.ActivityManager;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.preference.PreferenceFragment;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -42,12 +28,10 @@ import com.bumptech.glide.Glide;
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.fragment.DateSortedFragment;
 import com.zu.sweetalbum.fragment.FolderSortedFragment;
-import com.zu.sweetalbum.module.ProgressDialogProxy;
 import com.zu.sweetalbum.service.AlbumService;
 import com.zu.sweetalbum.swiftp.FtpActivity;
 import com.zu.sweetalbum.util.CommonUtil;
-import com.zu.sweetalbum.util.FileUtil;
-import com.zu.sweetalbum.util.Function;
+import com.zu.sweetalbum.module.Function;
 import com.zu.sweetalbum.util.ImageOperations;
 import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.util.rxbus.Event;
@@ -56,21 +40,15 @@ import com.zu.sweetalbum.view.MyViewPager;
 import com.zu.sweetalbum.view.SlideLayout;
 import com.zu.sweetalbum.view.TextViewPagerIndicator;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.Callable;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -157,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private boolean imageSelectAll = false;
-    private ProgressDialogProxy progressDialogProxy = null;
     private ArrayList<String> selectedImages = new ArrayList<>();
     private String dailyWallpaperPath;
 

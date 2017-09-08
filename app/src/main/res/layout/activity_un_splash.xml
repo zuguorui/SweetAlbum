@@ -7,9 +7,10 @@
     <include
         layout="@layout/activity_action_bar"
         android:id="@+id/UNSPLASHActivity_ActionBar"/>
-    <FrameLayout
+    <com.zu.sweetalbum.view.HideHeadLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:id="@+id/UNSPLASHActivity_frameLayout_container">
         <com.zu.sweetalbum.view.TextViewPagerIndicator
             android:layout_width="match_parent"
@@ -28,7 +29,7 @@
             >
 
         </com.zu.sweetalbum.view.MyViewPager>
-    </FrameLayout>
+    </com.zu.sweetalbum.view.HideHeadLayout>
 
 
 </LinearLayout>

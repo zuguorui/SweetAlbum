@@ -22,7 +22,7 @@ import com.zu.sweetalbum.module.ProgressDialogProxy;
 import com.zu.sweetalbum.module.ImageModule;
 import com.zu.sweetalbum.util.CommonUtil;
 import com.zu.sweetalbum.util.FileUtil;
-import com.zu.sweetalbum.util.Function;
+import com.zu.sweetalbum.module.Function;
 import com.zu.sweetalbum.util.ImageOperations;
 import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.util.rxbus.Event;
@@ -34,9 +34,7 @@ import com.zu.sweetalbum.view.CheckableView;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Set;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;

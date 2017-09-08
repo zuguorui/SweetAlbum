@@ -1,5 +1,8 @@
 package com.zu.sweetalbum.activity;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,6 +16,8 @@ import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.util.CommonUtil;
 import com.zu.sweetalbum.view.TextViewPagerIndicator;
 
+import java.util.ArrayList;
+
 public class UnSplashActivity extends AppCompatActivity implements View.OnClickListener{
     private ViewPager mViewPager;
     private FrameLayout customActionBarArea;
@@ -24,6 +29,11 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
 
     private TextViewPagerIndicator viewPagerIndicator;
     private ViewGroup actionBar;
+
+    private ArrayList<Fragment> fragments = new ArrayList<>();
+    private MyFragmentAdapter fragmentAdapter = new MyFragmentAdapter(getSupportFragmentManager());
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,9 +74,6 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
 
 
 
-
-
-
     }
 
     @Override
@@ -74,23 +81,28 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private View.OnTouchListener mOnTouchListener = new View.OnTouchListener() {
-        private int touchSlop = 4;
-        private int oldX, oldY, newX, newY, dx, dy;
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-
-            int count = motionEvent.getPointerCount();
-            if(count >= 2)
-            {
-                return false;
-            }
-            switch (motionEvent.getActionMasked())
-            {
-                case MotionEvent.ACTION_DOWN:
-
-            }
-            return false;
+    private class MyFragmentAdapter extends FragmentPagerAdapter
+    {
+        public MyFragmentAdapter(FragmentManager fm) {
+            super(fm);
         }
-    };
+
+        @Override
+        public Fragment getItem(int position) {
+            if(position >= fragments.size() || position < 0)
+            {
+                return null;
+            }
+            return fragments.get(position);
+        }
+
+
+
+        @Override
+        public int getCount() {
+            return fragments == null ? 0 : fragments.size();
+        }
+    }
+
+
 }

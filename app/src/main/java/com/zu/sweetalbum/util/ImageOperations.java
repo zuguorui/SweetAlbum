@@ -16,13 +16,13 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.zu.sweetalbum.R;
+import com.zu.sweetalbum.module.Function;
 import com.zu.sweetalbum.module.ProgressDialogProxy;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.zip.Inflater;
 
 
 /**
