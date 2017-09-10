@@ -16,7 +16,7 @@
     <style name="AppThemeLight" parent="Theme.AppCompat.Light" />
     <style name="AppThemeLight.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar" />
     <style name="BlackCircleProgressBar" parent="Widget.AppCompat.ProgressBar">
-        <item name="android:indeterminateDrawable">@color/colorPrimaryDark</item>
+        <item name="android:indeterminateDrawable">@drawable/progress_circle_black_anim</item>
     </style>
 
 </resources>

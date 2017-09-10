@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rotate xmlns:android="http://schemas.android.com/apk/res/android">
-    <shape android:shape="line"
+    <shape android:shape="rectangle"
         android:thickness="10dp"
         android:useLevel="false"
         >
-        <solid android:color="@color/colorAccent"/>
-        <stroke android:dashGap="10dp"
-            android:dashWidth="10dp"
-            android:color="@color/colorPrimary"
+        <gradient android:type="sweep"
+            android:startColor="#FF0000"
+            android:centerColor="#00ff00"
+            android:endColor="#FF0000"/>
+        <corners android:radius="90pt"/>
+        <size android:height="10dp"
             android:width="10dp"/>
+
+
     </shape>
 </rotate>
