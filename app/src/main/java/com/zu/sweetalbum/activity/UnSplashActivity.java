@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.util.CommonUtil;
@@ -25,6 +26,7 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
     private ImageView slideIndicator;
     private ImageView refreshButton;
     private ImageView searchButton;
+    private ProgressBar loadDataProcessBar;
 
 
     private TextViewPagerIndicator viewPagerIndicator;
@@ -53,6 +55,8 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
         refreshButton.setOnClickListener(this);
         searchButton = (ImageView)actionBar.findViewById(R.id.UnSplashActionBar_imageButton_search);
         searchButton.setOnClickListener(this);
+        loadDataProcessBar =(ProgressBar)actionBar.findViewById(R.id.UnSplashActionBar_progressBar_loadData);
+        loadDataProcessBar.setVisibility(View.GONE);
 
         mViewPager = (ViewPager) findViewById(R.id.UNSPLASHActivity_ViewPager);
         viewPagerIndicator = (TextViewPagerIndicator)findViewById(R.id.UNSPLASHActivity_viewPagerIndicator);
@@ -64,13 +68,7 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
         actionBarContainer.setPadding(actionBarContainer.getPaddingLeft(), actionBarContainer.getPaddingTop() + statusBarHeight,
                 actionBarContainer.getPaddingRight(), actionBarContainer.getPaddingBottom());
 
-        layoutParams = (ViewGroup.MarginLayoutParams) viewPagerIndicator.getLayoutParams();
-        int indicatorHeight = layoutParams.height;
 
-
-        layoutParams = (ViewGroup.MarginLayoutParams)mViewPager.getLayoutParams();
-        layoutParams.topMargin = indicatorHeight;
-        mViewPager.setLayoutParams(layoutParams);
 
 
 

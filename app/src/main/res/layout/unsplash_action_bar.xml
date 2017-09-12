@@ -19,7 +19,9 @@
         style="@style/BlackCircleProgressBar"
         android:layout_width="@dimen/action_bar_img_width"
         android:layout_height="@dimen/action_bar_img_height"
-        android:padding="7dp"/>
+        android:padding="7dp"
+        android:visibility="gone"
+        android:id="@+id/UnSplashActionBar_progressBar_loadData"/>
     <ImageView
         android:layout_width="@dimen/action_bar_img_width"
         android:layout_height="@dimen/action_bar_img_height"
@@ -34,5 +36,6 @@
         android:scaleType="fitXY"
         android:background="@drawable/image_button_background"
         android:id="@+id/UnSplashActionBar_imageButton_search"
-        android:layout_marginRight="0dp"/>
+        android:layout_marginRight="0dp"
+        />
 </LinearLayout>
