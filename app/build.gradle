@@ -36,4 +36,5 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'net.vrallev.android:cat:1.0.2'
     testCompile 'junit:junit:4.12'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
 }

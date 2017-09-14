@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 
 import java.net.URL;
 
+import okio.Okio;
+import retrofit2.http.GET;
+
 /**
  * Created by zu on 17-9-5.
  */
@@ -105,4 +108,6 @@ public class UnSplashUrlTool {
         }
         return null;
     }
+
+
 }

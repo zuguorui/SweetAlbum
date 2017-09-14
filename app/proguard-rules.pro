@@ -21,3 +21,5 @@
       **[] $VALUES;
       public *;
     }
+-dontwarn okio.**
+-dontwarn javax.annotation.**
