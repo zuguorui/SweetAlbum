@@ -46,7 +46,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".swiftp.FtpActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:exported="false"/>
 
         <service android:name=".swiftp.FsService" />
         <service android:name=".swiftp.NsdService" />
