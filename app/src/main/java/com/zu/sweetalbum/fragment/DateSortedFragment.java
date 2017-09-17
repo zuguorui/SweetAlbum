@@ -49,6 +49,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
+import static com.zu.sweetalbum.service.AlbumService.*;
+
 /**
  * Created by zu on 17-6-13.
  */
@@ -121,7 +123,7 @@ public class DateSortedFragment extends Fragment {
         public void accept(@NonNull final Event event) throws Exception {
             switch (event.action)
             {
-                case Event.ACTION_SORT_BY_DATE_SUCCESS:
+                case ACTION_SORT_BY_DATE_SUCCESS:
                     synchronized (this)
                     {
                         if(event.content == null)
@@ -148,11 +150,11 @@ public class DateSortedFragment extends Fragment {
                     }
 
                     break;
-                case Event.ACTION_DATA_UPDATE:
-                    RxBus.getInstance().post(new Event(Event.ACTION_GET_DATE_SORTED_LIST, null));
+                case ACTION_DATA_UPDATE:
+                    RxBus.getInstance().post(new Event(ACTION_GET_DATE_SORTED_LIST, null));
                     break;
-                case Event.ACTION_NO_IMAGE:
-                case Event.ACTION_NO_CAMERA_IMAGE:
+                case ACTION_NO_IMAGE:
+                case ACTION_NO_CAMERA_IMAGE:
                     data.clear();
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
@@ -211,7 +213,7 @@ public class DateSortedFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_date_sorted, container, false);
         initViews(view);
-        RxBus.getInstance().post(new Event(Event.ACTION_GET_DATE_SORTED_LIST, null));
+        RxBus.getInstance().post(new Event(ACTION_GET_DATE_SORTED_LIST, null));
         return view;
     }
 

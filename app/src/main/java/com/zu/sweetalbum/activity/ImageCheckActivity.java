@@ -64,6 +64,7 @@ import static com.zu.sweetalbum.activity.MainActivity.SHARE_REQUEST_CODE;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_COPY;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_CUT;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.SELECTED_IMAGES;
+import static com.zu.sweetalbum.service.AlbumService.*;
 
 public class ImageCheckActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -74,7 +75,7 @@ public class ImageCheckActivity extends AppCompatActivity implements View.OnClic
         public void accept(@NonNull Event event) throws Exception {
             switch (event.action)
             {
-                case Event.ACTION_ALBUM_LIST_PREPARE_SUCCESS:
+                case ACTION_ALBUM_LIST_PREPARE_SUCCESS:
                     final int currentPosition = switchView.getCurrentShowPosition();
                     if(event.content == null)
                     {
@@ -132,8 +133,8 @@ public class ImageCheckActivity extends AppCompatActivity implements View.OnClic
                         }
                     });
                     break;
-                case Event.ACTION_DATA_UPDATE:
-                    RxBus.getInstance().post(new Event(Event.ACTION_GET_ALBUM_LIST, album));
+                case ACTION_DATA_UPDATE:
+                    RxBus.getInstance().post(new Event(ACTION_GET_ALBUM_LIST, album));
                     break;
             }
 
@@ -497,7 +498,7 @@ public class ImageCheckActivity extends AppCompatActivity implements View.OnClic
         }
         Disposable disposable = RxBus.getInstance().toObservable().subscribe(messageConsumer,errorConsumer);
         mDisposables.add(disposable);
-        RxBus.getInstance().post(new Event(Event.ACTION_GET_ALBUM_LIST, album));
+        RxBus.getInstance().post(new Event(ACTION_GET_ALBUM_LIST, album));
 
     }
 

@@ -42,6 +42,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
+import static android.view.KeyEvent.KEYCODE_BACK;
 import static com.zu.sweetalbum.activity.MainActivity.COPY_REQUEST_CODE;
 import static com.zu.sweetalbum.activity.MainActivity.CUT_REQUEST_CODE;
 import static com.zu.sweetalbum.activity.MainActivity.DELETE_REQUEST_CODE;
@@ -49,6 +50,8 @@ import static com.zu.sweetalbum.activity.MainActivity.SHARE_REQUEST_CODE;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_COPY;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_CUT;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.SELECTED_IMAGES;
+import static com.zu.sweetalbum.service.AlbumService.*;
+
 
 public class AlbumBrowseActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -59,8 +62,8 @@ public class AlbumBrowseActivity extends AppCompatActivity implements View.OnCli
         public void accept(@NonNull Event event) throws Exception {
             switch (event.action)
             {
-                case Event.ACTION_ALBUM_LIST_PREPARE_SUCCESS:
-                    log.d("Event.ACTION_ALBUM_LIST_PREPARE_SUCCESS");
+                case ACTION_ALBUM_LIST_PREPARE_SUCCESS:
+                    log.d("ACTION_ALBUM_LIST_PREPARE_SUCCESS");
                     if(event.content == null)
                     {
                         data.clear();
@@ -82,9 +85,9 @@ public class AlbumBrowseActivity extends AppCompatActivity implements View.OnCli
                         }
                     });
                     break;
-                case Event.ACTION_DATA_UPDATE:
-                    log.d("Event.ACTION_DATA_UPDATE");
-                    RxBus.getInstance().post(new Event(Event.ACTION_GET_ALBUM_LIST, folderName));
+                case ACTION_DATA_UPDATE:
+                    log.d("ACTION_DATA_UPDATE");
+                    RxBus.getInstance().post(new Event(ACTION_GET_ALBUM_LIST, folderName));
                     break;
                 default:
                     break;
@@ -138,7 +141,7 @@ public class AlbumBrowseActivity extends AppCompatActivity implements View.OnCli
             folderName = intent.getStringExtra("folder_name");
             if(folderName != null)
             {
-                RxBus.getInstance().post(new Event(Event.ACTION_GET_ALBUM_LIST, folderName));
+                RxBus.getInstance().post(new Event(ACTION_GET_ALBUM_LIST, folderName));
                 String name = folderName;
                 if(name.charAt(name.length() - 1) == '/')
                 {
@@ -163,7 +166,7 @@ public class AlbumBrowseActivity extends AppCompatActivity implements View.OnCli
         boolean result = false;
         switch (keyCode)
         {
-            case KeyEvent.KEYCODE_BACK:
+            case KEYCODE_BACK:
                 if(customArea.getChildAt(0) != titleActionBar)
                 {
                     zoomLayoutManager.emptyCheckedItems();

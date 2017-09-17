@@ -1,4 +1,4 @@
-package com.zu.sweetalbum.module;
+package com.zu.sweetalbum.module.unsplash;
 
 import java.io.IOException;
 
@@ -25,4 +25,6 @@ public class UnSplashSignInterceptor implements Interceptor {
 
         return chain.proceed(request);
     }
+
+
 }

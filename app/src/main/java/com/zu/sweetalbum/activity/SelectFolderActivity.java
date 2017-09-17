@@ -41,6 +41,8 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
+import static com.zu.sweetalbum.service.AlbumService.*;
+
 public class SelectFolderActivity extends AppCompatActivity implements View.OnClickListener{
 
     public static final String ACTION_COPY = "action_copy";
@@ -72,18 +74,18 @@ public class SelectFolderActivity extends AppCompatActivity implements View.OnCl
         public void accept(@NonNull Event event) throws Exception {
             switch (event.action)
             {
-                case Event.ACTION_SORT_BY_FOLDER_SUCCESS:
+                case ACTION_SORT_BY_FOLDER_SUCCESS:
                     data = (HashMap<String, LinkedList<ImageModule>>) event.content;
                     initData();
                     adapter.setData(sortedKeys);
                     adapter.notifyDataSetChanged();
                     break;
-                case Event.ACTION_COPY_IMAGE_SUCCESS:
+                case ACTION_COPY_IMAGE_SUCCESS:
                     setResult(RESULT_OK);
                     Toast.makeText(SelectFolderActivity.this, "复制成功", Toast.LENGTH_SHORT).show();
                     finish();
                     break;
-                case Event.ACTION_COPY_IMAGE_FAIL:
+                case ACTION_COPY_IMAGE_FAIL:
                     setResult(3);
                     Toast.makeText(SelectFolderActivity.this, "复制失败", Toast.LENGTH_SHORT).show();
                     finish();
@@ -262,7 +264,7 @@ public class SelectFolderActivity extends AppCompatActivity implements View.OnCl
         selectedImages = intent.getStringArrayListExtra(SELECTED_IMAGES);
 
 
-        RxBus.getInstance().post(new Event(Event.ACTION_GET_FOLDER_SORTED_LIST, null));
+        RxBus.getInstance().post(new Event(ACTION_GET_FOLDER_SORTED_LIST, null));
 
 
     }

@@ -61,6 +61,7 @@ import io.reactivex.schedulers.Schedulers;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_COPY;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.ACTION_CUT;
 import static com.zu.sweetalbum.activity.SelectFolderActivity.SELECTED_IMAGES;
+import static com.zu.sweetalbum.service.AlbumService.ACTION_RELOAD_FROM_MEDIA_PROVIDER;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
@@ -600,7 +601,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     return;
                 }
             }
-            RxBus.getInstance().post(new Event(Event.ACTION_RELOAD_FROM_MEDIA_PROVIDER, null));
+            RxBus.getInstance().post(new Event(ACTION_RELOAD_FROM_MEDIA_PROVIDER, null));
         }
     }
 
