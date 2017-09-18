@@ -158,9 +158,9 @@ public class UnSplashUrlTool {
         Call<SearchCollectionResultBean> searchCollection(@Query("query") String keyWord, @Query("page") int page, @Query("per_page") int perPage);
     }
 
-    public interface DownloadPhotoService{
+    public interface AccessUrlService{
         @GET("{p}")
-        Call<ResponseBody> downloadPhoto(@Path("p") String url);
+        Call<ResponseBody> accessUrl(@Path("p") String url);
     }
 
 }
