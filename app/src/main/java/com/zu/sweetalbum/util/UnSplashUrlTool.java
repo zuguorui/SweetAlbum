@@ -8,6 +8,7 @@ import com.zu.sweetalbum.module.unsplash.SearchCollectionResultBean;
 import com.zu.sweetalbum.module.unsplash.SearchPhotoResultBean;
 
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -129,23 +130,23 @@ public class UnSplashUrlTool {
     public interface ListPhotosService
     {
         @GET("/photos")
-        Call<List<PhotoBean>> getPhotoList(@Query("page") int page, @Query("per_page") int perPage, @Query("order_by") String order);
+        Call<LinkedList<PhotoBean>> getPhotoList(@Query("page") int page, @Query("per_page") int perPage, @Query("order_by") String order);
     }
 
     public interface ListCuratedPhotosService
     {
         @GET("/photos/curated")
-        Call<List<PhotoBean>> getPhotoList(@Query("page") int page, @Query("per_page") int perPage, @Query("order_by") String order);
+        Call<LinkedList<PhotoBean>> getPhotoList(@Query("page") int page, @Query("per_page") int perPage, @Query("order_by") String order);
     }
 
     public interface ListCollectionsService{
         @GET("/collections")
-        Call<List<CollectionBean>> getCollectionList(@Query("page") int page, @Query("per_page") int perPage);
+        Call<LinkedList<CollectionBean>> getCollectionList(@Query("page") int page, @Query("per_page") int perPage);
     }
 
     public interface ListCuratedCollectionsService{
         @GET("/collections/curated")
-        Call<List<CollectionBean>> getCollectionList(@Query("page") int page, @Query("per_page") int perPage);
+        Call<LinkedList<CollectionBean>> getCollectionList(@Query("page") int page, @Query("per_page") int perPage);
     }
 
     public interface SearchPhotoService{
