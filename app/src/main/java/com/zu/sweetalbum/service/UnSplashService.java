@@ -129,6 +129,8 @@ public class UnSplashService extends Service {
                 .addInterceptor(new UnSplashSignInterceptor())
                 .build();
 
+        
+
         commonRetrofit = new Retrofit.Builder()
                 .baseUrl(UnSplashUrlTool.HOST_NAME)
 //                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
