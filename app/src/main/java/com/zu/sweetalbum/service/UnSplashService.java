@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 
 import com.zu.sweetalbum.module.unsplash.PhotoBean;
 import com.zu.sweetalbum.module.unsplash.UnSplashSignInterceptor;
+import com.zu.sweetalbum.util.CommonUtil;
 import com.zu.sweetalbum.util.UnSplashUrlTool;
 import com.zu.sweetalbum.util.rxbus.Event;
 import com.zu.sweetalbum.util.rxbus.RxBus;
@@ -27,8 +28,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.disposables.Disposables;
 import io.reactivex.functions.Consumer;
 import okhttp3.Cache;
+import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -127,6 +130,7 @@ public class UnSplashService extends Service {
     {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new UnSplashSignInterceptor())
+                .addInterceptor(new CacheInterceptor())
                 .build();
 
 
@@ -173,13 +177,33 @@ public class UnSplashService extends Service {
         @Override
         public okhttp3.Response intercept(Chain chain) throws IOException {
 
-            okhttp3.Response response = chain.proceed(chain.request());
-            okhttp3.Response response1 = response.newBuilder()
-                    .removeHeader("cache-control")
-                    .removeHeader("Pragma")
-                    .header("Cache-Control", "max-age=" + (1000 * 60))
-                    .build();
-            return response1;
+            boolean forceNet = false;
+            int netStatus = CommonUtil.getNetState();
+            Request request = chain.request();
+            if(request.url().pathSegments().contains("search"))
+            {
+                forceNet = true;
+            }
+            if(!forceNet)
+            {
+                if(netStatus == CommonUtil.NET_INVALID)
+                {
+                    request = request.newBuilder()
+                            .cacheControl(CacheControl.FORCE_CACHE)
+                            .build();
+                }
+            }
+
+            okhttp3.Response response = chain.proceed(request);
+            if(!forceNet)
+            {
+                response = response.newBuilder()
+                        .removeHeader("cache_control")
+                        .removeHeader("Pragma")
+                        .header("Cache_Control", "max-age=" + (1000 * 60))
+                        .build();
+            }
+            return response;
         }
     }
 

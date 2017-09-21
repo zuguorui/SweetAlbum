@@ -1,5 +1,7 @@
 package com.zu.sweetalbum.module.unsplash;
 
+import com.zu.sweetalbum.util.UnSplashUrlTool;
+
 import java.io.IOException;
 
 import okhttp3.HttpUrl;
@@ -18,10 +20,13 @@ public class UnSplashSignInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-        HttpUrl url = request.url().newBuilder()
-                .addQueryParameter(CLIENT_ID, APP_ID)
+//        HttpUrl url = request.url().newBuilder()
+//                .addQueryParameter(CLIENT_ID, APP_ID)
+//                .build();
+//        request = request.newBuilder().url(url).build();
+        request = request.newBuilder()
+                .header("Authorization", "Client-ID " + UnSplashUrlTool.APP_ID)
                 .build();
-        request = request.newBuilder().url(url).build();
 
         return chain.proceed(request);
     }

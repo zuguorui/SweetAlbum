@@ -1,6 +1,8 @@
 package com.zu.sweetalbum.util;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import com.zu.sweetalbum.App;
 
@@ -77,5 +79,27 @@ public class CommonUtil {
         }
 
         return sizeInByte + "B";
+    }
+
+    public static final int NET_INVALID = 0;
+    public static final int NET_MOBILE = 1;
+    public static final int NET_WLAN = 2;
+
+    public static int getNetState()
+    {
+        ConnectivityManager connectivityManager = (ConnectivityManager) App.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo == null || networkInfo.isAvailable())
+        {
+            return NET_INVALID;
+        }
+        if(networkInfo.getType() == ConnectivityManager.TYPE_MOBILE)
+        {
+            return NET_MOBILE;
+        }else
+        {
+            return NET_WLAN;
+        }
+
     }
 }
