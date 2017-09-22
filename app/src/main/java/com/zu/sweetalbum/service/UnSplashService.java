@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.zu.sweetalbum.module.unsplash.CollectionBean;
 import com.zu.sweetalbum.module.unsplash.PhotoBean;
+import com.zu.sweetalbum.module.unsplash.SearchCollectionResultBean;
+import com.zu.sweetalbum.module.unsplash.SearchPhotoResultBean;
 import com.zu.sweetalbum.module.unsplash.UnSplashSignInterceptor;
 import com.zu.sweetalbum.util.CommonUtil;
 import com.zu.sweetalbum.util.UnSplashUrlTool;
@@ -47,6 +50,26 @@ public class UnSplashService extends Service {
     public static final String ACTION_UNSPLASH_GET_PHOTO_SUCCESS = "action_unsplash_get_photo_success";
     public static final String ACTION_UNSPLASH_GET_PHOTO_FAIL = "action_unsplash_get_photo_fail";
 
+    public static final String ACTION_UNSPLASH_GET_CURATED_PHOTO = "action_unsplash_get_curated_photo";
+    public static final String ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS = "action_unsplash_get_curated_photo_success";
+    public static final String ACTION_UNSPLASH_GET_CURATED_PHOTO_FAIL = "action_unsplash_get_curated_photo_fail";
+
+    public static final String ACTION_UNSPLASH_GET_COLLECTION = "action_unsplash_get_collection";
+    public static final String ACTION_UNSPLASH_GET_COLLECTION_SUCCESS = "action_unsplash_get_collection_success";
+    public static final String ACTION_UNSPLASH_GET_COLLECTION_FAIL = "action_unsplash_get_collection_fail";
+
+    public static final String ACTION_UNSPLASH_GET_CURATED_COLLECTION = "action_unsplash_get_curated_collection";
+    public static final String ACTION_UNSPLASH_GET_CURATED_COLLECTION_SUCCESS = "action_unsplash_get_curated_collection_success";
+    public static final String ACTION_UNSPLASH_GET_CURATED_COLLECTION_FAIL = "action_unsplash_get_curated_collection_fail";
+
+    public static final String ACTION_UNSPLASH_SEARCH_PHOTO = "action_unsplash_search_photo";
+    public static final String ACTION_UNSPLASH_SEARCH_PHOTO_SUCCESS = "action_unsplash_search_photo_success";
+    public static final String ACTION_UNSPLASH_SEARCH_PHOTO_FAIL = "action_unsplash_search_photo_fail";
+
+    public static final String ACTION_UNSPLASH_SEARCH_COLLECTION = "action_unsplash_search_collection";
+    public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS = "action_unsplash_search_collection_success";
+    public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL = "action_unsplash_search_collection_fail";
+
 
     public static final int CACHE_TIME = 5000;
 
@@ -56,7 +79,13 @@ public class UnSplashService extends Service {
 
     private static boolean serviceRunning = false;
 
+    private UnSplashUrlTool.ListCuratedPhotosService listCuratedPhotosService = null;
     private UnSplashUrlTool.ListPhotosService listPhotosService = null;
+    private UnSplashUrlTool.ListCollectionsService listCollectionsService = null;
+    private UnSplashUrlTool.ListCuratedCollectionsService listCuratedCollectionsService = null;
+    private UnSplashUrlTool.SearchPhotoService searchPhotoService = null;
+    private UnSplashUrlTool.SearchCollectionService searchCollectionService = null;
+
     private Retrofit commonRetrofit = null;
     private PhotoListManager photoListManager = new PhotoListManager();
 
@@ -144,6 +173,28 @@ public class UnSplashService extends Service {
 
     }
 
+    private void unsplashGetCuratedPhoto(int page, int perPage,String order)
+    {
+        if(listCuratedPhotosService == null)
+        {
+            listCuratedPhotosService = commonRetrofit.create(UnSplashUrlTool.ListCuratedPhotosService.class);
+        }
+        Call<LinkedList<PhotoBean>> call = listCuratedPhotosService.getPhotoList(page, perPage, order);
+        call.enqueue(new Callback<LinkedList<PhotoBean>>() {
+            @Override
+            public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
+                LinkedList<PhotoBean> linkedList = response.body();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS, linkedList));
+            }
+
+            @Override
+            public void onFailure(Call<LinkedList<PhotoBean>> call, Throwable t) {
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_FAIL, null));
+            }
+        });
+
+    }
+
     private void unsplashGetPhoto(int page, int perPage, String order)
     {
 
@@ -165,6 +216,93 @@ public class UnSplashService extends Service {
         });
 
     }
+
+    public void unsplashGetCollection(int page, int perPage)
+    {
+        if(listCollectionsService == null)
+        {
+            listCollectionsService = commonRetrofit.create(UnSplashUrlTool.ListCollectionsService.class);
+        }
+        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(page, perPage);
+        call.enqueue(new Callback<LinkedList<CollectionBean>>() {
+            @Override
+            public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
+                LinkedList<CollectionBean> collectionBeenList = response.body();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_SUCCESS, collectionBeenList));
+            }
+
+            @Override
+            public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_FAIL, null));
+            }
+        });
+    }
+
+    public void unsplashGetCuratedCollection(int page, int perPage)
+    {
+        if(listCuratedCollectionsService == null)
+        {
+            listCuratedCollectionsService = commonRetrofit.create(UnSplashUrlTool.ListCuratedCollectionsService.class);
+        }
+        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(page, perPage);
+        call.enqueue(new Callback<LinkedList<CollectionBean>>() {
+            @Override
+            public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
+                LinkedList<CollectionBean> collectionBeenList = response.body();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_SUCCESS, collectionBeenList));
+            }
+
+            @Override
+            public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_FAIL, null));
+            }
+        });
+    }
+
+    private void unsplashSearchPhoto(@android.support.annotation.NonNull String keyWord, int page, int perPage)
+    {
+        if(searchPhotoService == null)
+        {
+            searchPhotoService = commonRetrofit.create(UnSplashUrlTool.SearchPhotoService.class);
+        }
+
+        Call<SearchPhotoResultBean> call = searchPhotoService.searchPhoto(keyWord, page, perPage);
+        call.enqueue(new Callback<SearchPhotoResultBean>() {
+            @Override
+            public void onResponse(Call<SearchPhotoResultBean> call, Response<SearchPhotoResultBean> response) {
+                SearchPhotoResultBean resultBean = response.body();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_PHOTO_SUCCESS, resultBean));
+            }
+
+            @Override
+            public void onFailure(Call<SearchPhotoResultBean> call, Throwable t) {
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_PHOTO_FAIL, null));
+            }
+        });
+    }
+
+    private void unsplashSearchCollection(@android.support.annotation.NonNull String keyword, int page, int perPage)
+    {
+        if(searchCollectionService == null)
+        {
+            searchCollectionService = commonRetrofit.create(UnSplashUrlTool.SearchCollectionService.class);
+        }
+        Call<SearchCollectionResultBean> call = searchCollectionService.searchCollection(keyword, page, perPage);
+        call.enqueue(new Callback<SearchCollectionResultBean>() {
+            @Override
+            public void onResponse(Call<SearchCollectionResultBean> call, Response<SearchCollectionResultBean> response) {
+                SearchCollectionResultBean resultBean = response.body();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS, resultBean));
+            }
+
+            @Override
+            public void onFailure(Call<SearchCollectionResultBean> call, Throwable t) {
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL, null));
+            }
+        });
+    }
+
+
 
     private class PhotoListManager{
         public LinkedList<PhotoBean> data;

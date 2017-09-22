@@ -20,7 +20,6 @@ import com.zu.sweetalbum.view.AlbumListView.ImageNoGroupedAdapter;
 import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
 import com.zu.sweetalbum.view.CheckableView;
 
-import java.io.File;
 import java.util.LinkedList;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -28,18 +27,18 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 
 /**
- * Created by zu on 17-9-8.
+ * Created by zu on 17-9-22.
  */
 
-public class UnSplashImageFragment extends Fragment {
-
+public class UnSplashCollectionFragment extends Fragment{
     private RecyclerView recyclerView;
     private ZoomLayoutManager zoomLayoutManager;
 
     private LinkedList<PhotoBean> data = new LinkedList<>();
-    private MyAdapter adapter;
+    MyAdapter adapter;
+    private CompositeDisposable mDisposable = new CompositeDisposable();
 
-    private Consumer messageConsumer = new Consumer<Event>() {
+    private Consumer messageConsumer = new Consumer<Event>(){
         @Override
         public void accept(@io.reactivex.annotations.NonNull Event event) throws Exception {
 
@@ -52,8 +51,6 @@ public class UnSplashImageFragment extends Fragment {
 
         }
     };
-
-    private CompositeDisposable mDisposable = new CompositeDisposable();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -78,7 +75,7 @@ public class UnSplashImageFragment extends Fragment {
 
     private void initViews(View root)
     {
-        recyclerView = (RecyclerView)root.findViewById(R.id.UnSplashImageFragment_recyclerView);
+        recyclerView = (RecyclerView)root.findViewById(R.id.UnSplashCollectionFragment_recyclerView);
         adapter = new MyAdapter(getActivity(), data);
         zoomLayoutManager = new ZoomLayoutManager(getActivity(), 2, 4, 2, adapter);
         recyclerView.setOnTouchListener(zoomLayoutManager.getZoomOnTouchListener());
@@ -99,7 +96,7 @@ public class UnSplashImageFragment extends Fragment {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             CheckableView checkableView = new CheckableView(getContext());
             checkableView.setContentView(imageView);
-            ImageViewHolder holder = new ImageViewHolder(checkableView);
+            ImageViewHolder holder = new MyAdapter.ImageViewHolder(checkableView);
             return holder;
         }
 
@@ -110,7 +107,7 @@ public class UnSplashImageFragment extends Fragment {
                 return;
             }
 
-            Glide.with(UnSplashImageFragment.this)
+            Glide.with(UnSplashCollectionFragment.this)
                     .load(data.get(position).urls.small)
                     .into(((ImageViewHolder)holder).imageView);
         }
@@ -125,6 +122,4 @@ public class UnSplashImageFragment extends Fragment {
 
         }
     }
-
-
 }

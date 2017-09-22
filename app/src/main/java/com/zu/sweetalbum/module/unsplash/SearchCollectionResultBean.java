@@ -3,7 +3,7 @@ package com.zu.sweetalbum.module.unsplash;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Created by zu on 17-9-15.
@@ -14,5 +14,5 @@ public class SearchCollectionResultBean implements Serializable{
     @SerializedName("total_pages")
     public int totalPages;
 
-    public List<CollectionBean> result;
+    public LinkedList<CollectionBean> result;
 }
