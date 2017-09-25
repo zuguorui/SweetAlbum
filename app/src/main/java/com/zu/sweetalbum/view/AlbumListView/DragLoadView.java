@@ -72,11 +72,11 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onStartLoad()
+    public void onLoadStart()
     {
         if(onLoadListener != null)
         {
-            onLoadListener.onStartLoad();
+            onLoadListener.onLoadStart();
         }
     }
 
@@ -84,7 +84,7 @@ public abstract class DragLoadView extends FrameLayout {
 
     public interface OnLoadListener{
         void onLoadComplete();
-        void onStartLoad();
+        void onLoadStart();
     }
 
     public interface OnDragListener{
