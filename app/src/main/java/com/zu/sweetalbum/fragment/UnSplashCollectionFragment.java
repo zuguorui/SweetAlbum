@@ -13,6 +13,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.zu.sweetalbum.R;
+import com.zu.sweetalbum.module.WorkType;
+import com.zu.sweetalbum.module.unsplash.CollectionBean;
 import com.zu.sweetalbum.module.unsplash.PhotoBean;
 import com.zu.sweetalbum.util.rxbus.Event;
 import com.zu.sweetalbum.util.rxbus.RxBus;
@@ -34,7 +36,12 @@ public class UnSplashCollectionFragment extends Fragment{
     private RecyclerView recyclerView;
     private ZoomLayoutManager zoomLayoutManager;
 
-    private LinkedList<PhotoBean> data = new LinkedList<>();
+
+    private int work_type = WorkType.BROWSE;
+    private int currentPage = 0;
+    private int perPage = 20;
+
+    private LinkedList<CollectionBean> data = new LinkedList<>();
     MyAdapter adapter;
     private CompositeDisposable mDisposable = new CompositeDisposable();
 
@@ -51,6 +58,24 @@ public class UnSplashCollectionFragment extends Fragment{
 
         }
     };
+
+    public void setWorkType(int type)
+    {
+        if(work_type != type )
+        {
+            data.clear();
+            if(adapter != null)
+            {
+                adapter.notifyDataSetChanged();
+            }
+        }
+        work_type = type;
+    }
+
+    private void aquireData()
+    {
+
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,7 +133,7 @@ public class UnSplashCollectionFragment extends Fragment{
             }
 
             Glide.with(UnSplashCollectionFragment.this)
-                    .load(data.get(position).urls.small)
+                    .load(data.get(position).coverPhoto.urls.thumb)
                     .into(((ImageViewHolder)holder).imageView);
         }
 

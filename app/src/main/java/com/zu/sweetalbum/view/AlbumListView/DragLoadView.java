@@ -2,6 +2,9 @@ package com.zu.sweetalbum.view.AlbumListView;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
@@ -15,6 +18,7 @@ public abstract class DragLoadView extends FrameLayout {
 
     public DragLoadView(@NonNull Context context) {
         super(context);
+
     }
 
     public void setOnLoadListener(OnLoadListener loadListener)
@@ -32,7 +36,10 @@ public abstract class DragLoadView extends FrameLayout {
         this.onDragListener = listener;
     }
 
-
+    public void removeDragListener()
+    {
+        this.onDragListener = null;
+    }
 
     public void onDrag(float process){
         if(onDragListener != null)
@@ -65,10 +72,19 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
+    public void onStartLoad()
+    {
+        if(onLoadListener != null)
+        {
+            onLoadListener.onStartLoad();
+        }
+    }
+
 
 
     public interface OnLoadListener{
         void onLoadComplete();
+        void onStartLoad();
     }
 
     public interface OnDragListener{

@@ -20,6 +20,7 @@ import com.zu.sweetalbum.view.TextViewPagerIndicator;
 import java.util.ArrayList;
 
 public class UnSplashActivity extends AppCompatActivity implements View.OnClickListener{
+
     private ViewPager mViewPager;
     private FrameLayout customActionBarArea;
     private ViewGroup actionBarContainer;

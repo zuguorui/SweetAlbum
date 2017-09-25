@@ -107,7 +107,77 @@ public class UnSplashService extends Service {
                     unsplashGetPhoto(page, perPage, order);
                 }
                     break;
-
+                case ACTION_UNSPLASH_GET_COLLECTION:
+                {
+                    Bundle bundle = (Bundle)event.content;
+                    int page = bundle.getInt("page", -1);
+                    int perPage = bundle.getInt("per_page", -1);
+                    if(page == -1 || perPage == -1)
+                    {
+                        throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
+                    }
+                    unsplashGetCollection(page, perPage);
+                }
+                break;
+                case ACTION_UNSPLASH_SEARCH_PHOTO:
+                {
+                    Bundle bundle = (Bundle)event.content;
+                    int page = bundle.getInt("page", -1);
+                    int perPage = bundle.getInt("per_page", -1);
+                    String keyWord = bundle.getString("key_word");
+                    if(page == -1 || perPage == -1)
+                    {
+                        throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
+                    }
+                    if(keyWord == null || keyWord.equals(""))
+                    {
+                        throw new IllegalArgumentException("you must pass available keyword to search photo");
+                    }
+                    unsplashSearchPhoto(keyWord, page, perPage);
+                }
+                break;
+                case ACTION_UNSPLASH_SEARCH_COLLECTION:
+                {
+                    Bundle bundle = (Bundle)event.content;
+                    int page = bundle.getInt("page", -1);
+                    int perPage = bundle.getInt("per_page", -1);
+                    String keyWord = bundle.getString("key_word");
+                    if(page == -1 || perPage == -1)
+                    {
+                        throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
+                    }
+                    if(keyWord == null || keyWord.equals(""))
+                    {
+                        throw new IllegalArgumentException("you must pass available keyword to search collection");
+                    }
+                    unsplashSearchCollection(keyWord, page, perPage);
+                }
+                break;
+                case ACTION_UNSPLASH_GET_CURATED_PHOTO:
+                {
+                    Bundle bundle = (Bundle)event.content;
+                    int page = bundle.getInt("page", -1);
+                    int perPage = bundle.getInt("per_page", -1);
+                    String order = bundle.getString("order");
+                    if(page == -1 || perPage == -1)
+                    {
+                        throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
+                    }
+                    unsplashGetCuratedPhoto(page, perPage, order);
+                }
+                break;
+                case ACTION_UNSPLASH_GET_CURATED_COLLECTION:
+                {
+                    Bundle bundle = (Bundle)event.content;
+                    int page = bundle.getInt("page", -1);
+                    int perPage = bundle.getInt("per_page", -1);
+                    if(page == -1 || perPage == -1)
+                    {
+                        throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
+                    }
+                    unsplashGetCuratedCollection(page, perPage);
+                }
+                break;
                 default:
                     break;
             }
