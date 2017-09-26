@@ -104,6 +104,7 @@ public class UnSplashImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Disposable disposable = RxBus.getInstance().toObservable().subscribe(messageConsumer, errorConsumer);
         mDisposable.add(disposable);
+
     }
 
     @Override
@@ -117,7 +118,7 @@ public class UnSplashImageFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_unsplash_image, null);
         initViews(root);
-        return super.onCreateView(inflater, container, savedInstanceState);
+        return root;
     }
 
     private void initViews(View root)

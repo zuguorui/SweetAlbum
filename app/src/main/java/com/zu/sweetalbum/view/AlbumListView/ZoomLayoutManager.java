@@ -894,13 +894,23 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 
 
 
-    private Rect getVisibleRect()
+    public Rect getVisibleRect()
     {
         int top = getPaddingTop();
         int bottom = getHeight() - getPaddingBottom() - getPaddingTop();
         int left = getPaddingLeft();
         int right = getWidth() - getPaddingRight() - getPaddingLeft();
         return new Rect(left, top, right, bottom);
+    }
+
+    public int getChildHeight()
+    {
+        return childSizeHelper.getHeight();
+    }
+
+    public int getChildWidth()
+    {
+        return childSizeHelper.getWidth();
     }
 
     private void zoomChild(Point zoomCenter)

@@ -70,10 +70,18 @@ public class UnSplashService extends Service {
     public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS = "action_unsplash_search_collection_success";
     public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL = "action_unsplash_search_collection_fail";
 
+    public static final String FLAG_ACHIEVE_END = "flag_achieve_end";
+
 
     public static final int CACHE_TIME = 5000;
 
-    private LinkedList<PhotoBean> photoBeanLinkedList = new LinkedList<>();
+    private LinkedList<PhotoBean> photoBeanList = new LinkedList<>();
+    private LinkedList<PhotoBean> curatedPhotoBeanList = new LinkedList<>();
+    private LinkedList<CollectionBean> collectionBeenList = new LinkedList<>();
+    private LinkedList<CollectionBean> curatedBeanList = new LinkedList<>();
+
+    private LinkedList<PhotoBean> searchPhotoResultList = new LinkedList<>();
+    private LinkedList<CollectionBean> searchCollectionResult = new LinkedList<>();
 
 
 
@@ -243,7 +251,7 @@ public class UnSplashService extends Service {
 
     }
 
-    private void unsplashGetCuratedPhoto(int page, int perPage,String order)
+    private void unsplashGetCuratedPhoto(int page, int perPage, String order, final OnNetCallback onNetCallback)
     {
         if(listCuratedPhotosService == null)
         {
@@ -254,12 +262,14 @@ public class UnSplashService extends Service {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
                 LinkedList<PhotoBean> linkedList = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS, linkedList));
+                photoBeanList.addAll(linkedList);
+                onNetCallback.onSuccess();
+
             }
 
             @Override
             public void onFailure(Call<LinkedList<PhotoBean>> call, Throwable t) {
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_FAIL, null));
+                onNetCallback.onFail();
             }
         });
 
@@ -378,6 +388,11 @@ public class UnSplashService extends Service {
         public LinkedList<PhotoBean> data;
         public int lastPage = 0;
         public int lastPerPage = 0;
+    }
+
+    private interface OnNetCallback{
+        void onSuccess();
+        void onFail();
     }
 
     private class CacheInterceptor implements Interceptor

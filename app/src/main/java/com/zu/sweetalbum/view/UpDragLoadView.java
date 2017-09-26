@@ -81,6 +81,7 @@ public class UpDragLoadView extends DragLoadView {
 
         }
         animator.start();
+        textView.setText("正在刷新");
 
 
     }
