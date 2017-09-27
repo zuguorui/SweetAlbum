@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ServiceConfigurationError;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -78,10 +79,10 @@ public class UnSplashService extends Service {
     private LinkedList<PhotoBean> photoBeanList = new LinkedList<>();
     private LinkedList<PhotoBean> curatedPhotoBeanList = new LinkedList<>();
     private LinkedList<CollectionBean> collectionBeenList = new LinkedList<>();
-    private LinkedList<CollectionBean> curatedBeanList = new LinkedList<>();
+    private LinkedList<CollectionBean> curatedCollectionBeanList = new LinkedList<>();
 
     private LinkedList<PhotoBean> searchPhotoResultList = new LinkedList<>();
-    private LinkedList<CollectionBean> searchCollectionResult = new LinkedList<>();
+    private LinkedList<CollectionBean> searchCollectionResultList = new LinkedList<>();
 
 
 
@@ -262,7 +263,7 @@ public class UnSplashService extends Service {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
                 LinkedList<PhotoBean> linkedList = response.body();
-                photoBeanList.addAll(linkedList);
+                curatedPhotoBeanList.addAll(linkedList);
                 onNetCallback.onSuccess();
 
             }
@@ -275,7 +276,7 @@ public class UnSplashService extends Service {
 
     }
 
-    private void unsplashGetPhoto(int page, int perPage, String order)
+    private void unsplashGetPhoto(int page, int perPage, String order, final OnNetCallback onNetCallback)
     {
 
         if(listPhotosService == null) {
@@ -285,19 +286,20 @@ public class UnSplashService extends Service {
         call.enqueue(new Callback<LinkedList<PhotoBean>>() {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
-                LinkedList<PhotoBean> photoBeanList = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_PHOTO_SUCCESS, photoBeanList));
+                LinkedList<PhotoBean> list = response.body();
+                photoBeanList.addAll(list);
+                onNetCallback.onSuccess();
             }
 
             @Override
             public void onFailure(Call<LinkedList<PhotoBean>> call, Throwable t) {
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_PHOTO_FAIL, null));
+                onNetCallback.onFail();
             }
         });
 
     }
 
-    public void unsplashGetCollection(int page, int perPage)
+    public void unsplashGetCollection(int page, int perPage, final OnNetCallback onNetCallback)
     {
         if(listCollectionsService == null)
         {
@@ -307,18 +309,19 @@ public class UnSplashService extends Service {
         call.enqueue(new Callback<LinkedList<CollectionBean>>() {
             @Override
             public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
-                LinkedList<CollectionBean> collectionBeenList = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_SUCCESS, collectionBeenList));
+                LinkedList<CollectionBean> list = response.body();
+                collectionBeenList.addAll(list);
+                onNetCallback.onSuccess();
             }
 
             @Override
             public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_FAIL, null));
+                onNetCallback.onFail();
             }
         });
     }
 
-    public void unsplashGetCuratedCollection(int page, int perPage)
+    public void unsplashGetCuratedCollection(int page, int perPage, final OnNetCallback onNetCallback)
     {
         if(listCuratedCollectionsService == null)
         {
@@ -328,18 +331,19 @@ public class UnSplashService extends Service {
         call.enqueue(new Callback<LinkedList<CollectionBean>>() {
             @Override
             public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
-                LinkedList<CollectionBean> collectionBeenList = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_SUCCESS, collectionBeenList));
+                LinkedList<CollectionBean> list = response.body();
+                curatedCollectionBeanList.addAll(list);
+                onNetCallback.onSuccess();
             }
 
             @Override
             public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_FAIL, null));
+                onNetCallback.onFail();
             }
         });
     }
 
-    private void unsplashSearchPhoto(@android.support.annotation.NonNull String keyWord, int page, int perPage)
+    private void unsplashSearchPhoto(@android.support.annotation.NonNull String keyWord, int page, int perPage, final OnNetCallback onNetCallback)
     {
         if(searchPhotoService == null)
         {
@@ -351,7 +355,8 @@ public class UnSplashService extends Service {
             @Override
             public void onResponse(Call<SearchPhotoResultBean> call, Response<SearchPhotoResultBean> response) {
                 SearchPhotoResultBean resultBean = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_PHOTO_SUCCESS, resultBean));
+                searchPhotoResultList.addAll(resultBean.result);
+                onNetCallback.onSuccess();
             }
 
             @Override
@@ -361,7 +366,7 @@ public class UnSplashService extends Service {
         });
     }
 
-    private void unsplashSearchCollection(@android.support.annotation.NonNull String keyword, int page, int perPage)
+    private void unsplashSearchCollection(@android.support.annotation.NonNull String keyword, int page, int perPage, final OnNetCallback onNetCallback)
     {
         if(searchCollectionService == null)
         {
@@ -372,12 +377,14 @@ public class UnSplashService extends Service {
             @Override
             public void onResponse(Call<SearchCollectionResultBean> call, Response<SearchCollectionResultBean> response) {
                 SearchCollectionResultBean resultBean = response.body();
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS, resultBean));
+                LinkedList<CollectionBean> list = resultBean.result;
+                searchCollectionResultList.addAll(list);
+                onNetCallback.onSuccess();
             }
 
             @Override
             public void onFailure(Call<SearchCollectionResultBean> call, Throwable t) {
-                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL, null));
+                onNetCallback.onFail();
             }
         });
     }
@@ -393,6 +400,36 @@ public class UnSplashService extends Service {
     private interface OnNetCallback{
         void onSuccess();
         void onFail();
+        void onSuccess(int code);
+        void onFail(String message);
+    }
+
+    private class OnNetCallbackImpl implements OnNetCallback
+    {
+
+        private List<Object> targetList = null;
+
+        
+
+        @Override
+        public void onSuccess() {
+
+        }
+
+        @Override
+        public void onFail() {
+
+        }
+
+        @Override
+        public void onSuccess(int code) {
+
+        }
+
+        @Override
+        public void onFail(String message) {
+
+        }
     }
 
     private class CacheInterceptor implements Interceptor
