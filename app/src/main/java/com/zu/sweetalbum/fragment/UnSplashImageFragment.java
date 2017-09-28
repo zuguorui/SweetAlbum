@@ -104,6 +104,7 @@ public class UnSplashImageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Disposable disposable = RxBus.getInstance().toObservable().subscribe(messageConsumer, errorConsumer);
         mDisposable.add(disposable);
+        setWorkType(WorkType.BROWSE);
 
     }
 

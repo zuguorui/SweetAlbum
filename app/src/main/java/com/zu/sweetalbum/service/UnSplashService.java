@@ -76,9 +76,11 @@ public class UnSplashService extends Service {
 
     public static final int CACHE_TIME = 5000;
 
+    private static final int PER_PAGE = 20;
+
     private LinkedList<PhotoBean> photoBeanList = new LinkedList<>();
     private LinkedList<PhotoBean> curatedPhotoBeanList = new LinkedList<>();
-    private LinkedList<CollectionBean> collectionBeenList = new LinkedList<>();
+    private LinkedList<CollectionBean> collectionBeanList = new LinkedList<>();
     private LinkedList<CollectionBean> curatedCollectionBeanList = new LinkedList<>();
 
     private LinkedList<PhotoBean> searchPhotoResultList = new LinkedList<>();
@@ -95,8 +97,15 @@ public class UnSplashService extends Service {
     private UnSplashUrlTool.SearchPhotoService searchPhotoService = null;
     private UnSplashUrlTool.SearchCollectionService searchCollectionService = null;
 
+    private Status photoStatus = new Status();
+    private Status curatedPhotoStatus = new Status();
+    private Status collectionStatus = new Status();
+    private Status curatedCollectionStatus = new Status();
+    private Status searchPhotoStatus = new Status();
+    private Status searchCollectionStatus = new Status();
+
     private Retrofit commonRetrofit = null;
-    private PhotoListManager photoListManager = new PhotoListManager();
+
 
     private Consumer messageConsumer = new Consumer<Event>() {
         @Override
@@ -106,8 +115,8 @@ public class UnSplashService extends Service {
                 case ACTION_UNSPLASH_GET_PHOTO:
                 {
                     Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
+                    int page = bundle.getInt("from", -1);
+                    int perPage = bundle.getInt("to", -1);
                     String order = bundle.getString("order");
                     if(page == -1 || perPage == -1)
                     {
@@ -252,111 +261,289 @@ public class UnSplashService extends Service {
 
     }
 
-    private void unsplashGetCuratedPhoto(int page, int perPage, String order, final OnNetCallback onNetCallback)
+    /**
+     * 检查目标链表是否满足数据要求。
+     *
+     * @param from 请求数据开始的index
+     * @param to 请求数据结束的index，区间为[from, to)
+     * @param srcList 数据来源链表
+     * @param targetList 结果集
+     *
+     * @return 0代表请求的数据范围完全在已有数据中。-1代表完全不在。1代表部分在
+     * */
+    private int checkAndFillList(int from, int to, LinkedList srcList, LinkedList targetList)
+    {
+        if(srcList == null)
+        {
+            return -1;
+        }
+        int size = srcList.size();
+
+        if(size >= to)
+        {
+            targetList = (LinkedList) srcList.subList(from, to);
+
+            return 0;
+        }
+
+        if(size <= from)
+        {
+            return -1;
+        }
+
+        if(to >= size && from < size)
+        {
+            targetList = (LinkedList)srcList.subList(from, size);
+
+            return 1;
+        }
+        return -1;
+    }
+
+    private void unsplashGetCuratedPhoto(final int from, final int to, final String order)
     {
         if(listCuratedPhotosService == null)
         {
             listCuratedPhotosService = commonRetrofit.create(UnSplashUrlTool.ListCuratedPhotosService.class);
         }
-        Call<LinkedList<PhotoBean>> call = listCuratedPhotosService.getPhotoList(page, perPage, order);
+
+        LinkedList<PhotoBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, curatedPhotoBeanList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS, result));
+            return;
+        }
+
+        if(curatedPhotoStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+
+        Call<LinkedList<PhotoBean>> call = listCuratedPhotosService.getPhotoList(curatedPhotoStatus.pageNum, PER_PAGE, order);
         call.enqueue(new Callback<LinkedList<PhotoBean>>() {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
                 LinkedList<PhotoBean> linkedList = response.body();
-                curatedPhotoBeanList.addAll(linkedList);
-                onNetCallback.onSuccess();
+
+                if(linkedList != null && linkedList.size() != 0)
+                {
+                    curatedPhotoBeanList.addAll(linkedList);
+                    curatedPhotoStatus.pageNum++;
+                }
+
+                if(linkedList == null || linkedList.size() < PER_PAGE)
+                {
+                    curatedPhotoStatus.achieveEnd = true;
+                }
+                unsplashGetCuratedPhoto(from, to, order);
 
             }
 
             @Override
             public void onFailure(Call<LinkedList<PhotoBean>> call, Throwable t) {
-                onNetCallback.onFail();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_PHOTO_FAIL, null));
             }
         });
 
     }
 
-    private void unsplashGetPhoto(int page, int perPage, String order, final OnNetCallback onNetCallback)
+    private void unsplashGetPhoto(final int from, final int to, final String order)
     {
 
         if(listPhotosService == null) {
             listPhotosService = commonRetrofit.create(UnSplashUrlTool.ListPhotosService.class);
         }
-        Call<LinkedList<PhotoBean>> call = listPhotosService.getPhotoList(page, perPage, order);
+        LinkedList<PhotoBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, photoBeanList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_PHOTO_SUCCESS, result));
+            return;
+        }
+
+        if(photoStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_GET_PHOTO_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+        Call<LinkedList<PhotoBean>> call = listPhotosService.getPhotoList(photoStatus.pageNum, PER_PAGE, order);
         call.enqueue(new Callback<LinkedList<PhotoBean>>() {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
                 LinkedList<PhotoBean> list = response.body();
-                photoBeanList.addAll(list);
-                onNetCallback.onSuccess();
+                if(list != null && list.size() != 0)
+                {
+                    photoBeanList.addAll(list);
+                    photoStatus.pageNum++;
+                }
+
+                if(list == null || list.size() < PER_PAGE)
+                {
+                    photoStatus.achieveEnd = true;
+                }
+                unsplashGetPhoto(from, to, order);
+
             }
 
             @Override
             public void onFailure(Call<LinkedList<PhotoBean>> call, Throwable t) {
-                onNetCallback.onFail();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_PHOTO_FAIL, null));
             }
         });
 
     }
 
-    public void unsplashGetCollection(int page, int perPage, final OnNetCallback onNetCallback)
+    public void unsplashGetCollection(final int from, final int to)
     {
         if(listCollectionsService == null)
         {
             listCollectionsService = commonRetrofit.create(UnSplashUrlTool.ListCollectionsService.class);
         }
-        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(page, perPage);
+
+        LinkedList<CollectionBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, collectionBeanList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_SUCCESS, result));
+            return;
+        }
+
+        if(collectionStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_GET_COLLECTION_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(collectionStatus.pageNum, PER_PAGE);
         call.enqueue(new Callback<LinkedList<CollectionBean>>() {
             @Override
             public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
                 LinkedList<CollectionBean> list = response.body();
-                collectionBeenList.addAll(list);
-                onNetCallback.onSuccess();
+                if(list != null && list.size() != 0)
+                {
+                    collectionBeanList.addAll(list);
+                    collectionStatus.pageNum++;
+                }
+
+                if(list == null || list.size() < PER_PAGE)
+                {
+                    collectionStatus.achieveEnd = true;
+                }
+
+                unsplashGetCollection(from, to);
             }
 
             @Override
             public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
-                onNetCallback.onFail();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_COLLECTION_FAIL, null));
             }
         });
     }
 
-    public void unsplashGetCuratedCollection(int page, int perPage, final OnNetCallback onNetCallback)
+    public void unsplashGetCuratedCollection(final int from, final int to)
     {
         if(listCuratedCollectionsService == null)
         {
             listCuratedCollectionsService = commonRetrofit.create(UnSplashUrlTool.ListCuratedCollectionsService.class);
         }
-        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(page, perPage);
+
+        LinkedList<CollectionBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, curatedCollectionBeanList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_SUCCESS, result));
+            return;
+        }
+
+        if(curatedCollectionStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+        Call<LinkedList<CollectionBean>> call = listCollectionsService.getCollectionList(curatedCollectionStatus.pageNum, PER_PAGE);
         call.enqueue(new Callback<LinkedList<CollectionBean>>() {
             @Override
             public void onResponse(Call<LinkedList<CollectionBean>> call, Response<LinkedList<CollectionBean>> response) {
                 LinkedList<CollectionBean> list = response.body();
-                curatedCollectionBeanList.addAll(list);
-                onNetCallback.onSuccess();
+                if(list != null && list.size() != 0)
+                {
+                    curatedCollectionBeanList.addAll(list);
+                    curatedCollectionStatus.pageNum++;
+                }
+                if(list == null || list.size() < PER_PAGE)
+                {
+                    curatedCollectionStatus.achieveEnd = true;
+                }
+                unsplashGetCuratedCollection(from, to);
             }
 
             @Override
             public void onFailure(Call<LinkedList<CollectionBean>> call, Throwable t) {
-                onNetCallback.onFail();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_GET_CURATED_COLLECTION_FAIL, null));
             }
         });
     }
 
-    private void unsplashSearchPhoto(@android.support.annotation.NonNull String keyWord, int page, int perPage, final OnNetCallback onNetCallback)
+    private void unsplashSearchPhoto(@android.support.annotation.NonNull final String keyWord, final int from, final int to)
     {
         if(searchPhotoService == null)
         {
             searchPhotoService = commonRetrofit.create(UnSplashUrlTool.SearchPhotoService.class);
         }
 
-        Call<SearchPhotoResultBean> call = searchPhotoService.searchPhoto(keyWord, page, perPage);
+        LinkedList<PhotoBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, searchPhotoResultList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_PHOTO_SUCCESS, result));
+            return;
+        }
+
+        if(searchPhotoStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_SEARCH_PHOTO_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+        Call<SearchPhotoResultBean> call = searchPhotoService.searchPhoto(keyWord, searchPhotoStatus.pageNum, PER_PAGE);
         call.enqueue(new Callback<SearchPhotoResultBean>() {
             @Override
             public void onResponse(Call<SearchPhotoResultBean> call, Response<SearchPhotoResultBean> response) {
                 SearchPhotoResultBean resultBean = response.body();
-                searchPhotoResultList.addAll(resultBean.result);
-                onNetCallback.onSuccess();
+                if(resultBean != null)
+                {
+                    if(resultBean.result != null && resultBean.result.size() != 0)
+                    {
+                        searchPhotoResultList.addAll(resultBean.result);
+                        searchPhotoStatus.pageNum++;
+                    }
+                    if(resultBean.result == null || resultBean.result.size() < PER_PAGE)
+                    {
+                        searchPhotoStatus.achieveEnd = true;
+                    }
+                    unsplashSearchPhoto(keyWord, from, to);
+
+                }else
+                {
+                    RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_PHOTO_FAIL, null));
+                }
+
+
             }
 
             @Override
@@ -366,35 +553,65 @@ public class UnSplashService extends Service {
         });
     }
 
-    private void unsplashSearchCollection(@android.support.annotation.NonNull String keyword, int page, int perPage, final OnNetCallback onNetCallback)
+    private void unsplashSearchCollection(@android.support.annotation.NonNull final String keyword, final int from, final int to)
     {
         if(searchCollectionService == null)
         {
             searchCollectionService = commonRetrofit.create(UnSplashUrlTool.SearchCollectionService.class);
         }
-        Call<SearchCollectionResultBean> call = searchCollectionService.searchCollection(keyword, page, perPage);
+
+        LinkedList<CollectionBean> result = new LinkedList<>();
+        int code = checkAndFillList(from, to, searchCollectionResultList, result);
+        if(code == 0)
+        {
+            RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS, result));
+            return;
+        }
+
+        if(searchCollectionStatus.achieveEnd == true)
+        {
+            Event event = new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS, result);
+            event.putExtra(FLAG_ACHIEVE_END, true);
+            RxBus.getInstance().post(event);
+            return;
+        }
+
+        Call<SearchCollectionResultBean> call = searchCollectionService.searchCollection(keyword, searchCollectionStatus.pageNum, PER_PAGE);
         call.enqueue(new Callback<SearchCollectionResultBean>() {
             @Override
             public void onResponse(Call<SearchCollectionResultBean> call, Response<SearchCollectionResultBean> response) {
                 SearchCollectionResultBean resultBean = response.body();
-                LinkedList<CollectionBean> list = resultBean.result;
-                searchCollectionResultList.addAll(list);
-                onNetCallback.onSuccess();
+                if(resultBean != null)
+                {
+                    if(resultBean.result != null && resultBean.result.size() != 0)
+                    {
+                        searchCollectionResultList.addAll(resultBean.result);
+                        searchCollectionStatus.pageNum++;
+                    }
+                    if(resultBean.result == null || resultBean.result.size() < PER_PAGE)
+                    {
+                        searchCollectionStatus.achieveEnd = true;
+                    }
+                    unsplashSearchCollection(keyword, from, to);
+
+                }else
+                {
+                    RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL, null));
+                }
             }
 
             @Override
             public void onFailure(Call<SearchCollectionResultBean> call, Throwable t) {
-                onNetCallback.onFail();
+                RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL, null));
             }
         });
     }
 
 
 
-    private class PhotoListManager{
-        public LinkedList<PhotoBean> data;
-        public int lastPage = 0;
-        public int lastPerPage = 0;
+    private class Status{
+        public int pageNum = 0;
+        public boolean achieveEnd = false;
     }
 
     private interface OnNetCallback{
@@ -408,17 +625,22 @@ public class UnSplashService extends Service {
     {
 
         private List<Object> targetList = null;
+        private int page, perPage;
 
-        
+        public OnNetCallbackImpl(List<Object> targetList, int page, int perPage) {
+            this.targetList = targetList;
+            this.page = page;
+            this.perPage = perPage;
+        }
 
         @Override
         public void onSuccess() {
-
+            onSuccess(0);
         }
 
         @Override
         public void onFail() {
-
+            onFail(null);
         }
 
         @Override
@@ -468,3 +690,4 @@ public class UnSplashService extends Service {
     }
 
 }
+
