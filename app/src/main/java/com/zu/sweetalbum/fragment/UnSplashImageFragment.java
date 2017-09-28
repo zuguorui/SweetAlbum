@@ -94,7 +94,12 @@ public class UnSplashImageFragment extends Fragment {
         work_type = type;
     }
 
-    private void aquireData()
+    private void aquireData(int count)
+    {
+
+    }
+
+    private void aquireData(int from, int to)
     {
 
     }

@@ -114,86 +114,87 @@ public class UnSplashService extends Service {
             {
                 case ACTION_UNSPLASH_GET_PHOTO:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("from", -1);
-                    int perPage = bundle.getInt("to", -1);
-                    String order = bundle.getString("order");
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to"), orderObj = event.getExtra("order");
+                    if(fromObj == null || toObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    unsplashGetPhoto(page, perPage, order);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    String order = (String)orderObj;
+                    unsplashGetPhoto(from, to, order);
                 }
                     break;
                 case ACTION_UNSPLASH_GET_COLLECTION:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to");
+                    if(fromObj == null || toObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    unsplashGetCollection(page, perPage);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+
+                    unsplashGetCollection(from, to);
                 }
                 break;
                 case ACTION_UNSPLASH_SEARCH_PHOTO:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
-                    String keyWord = bundle.getString("key_word");
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to"),
+                    keywordObj = event.getExtra("keyword");
+                    if(fromObj == null || toObj == null || keywordObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    if(keyWord == null || keyWord.equals(""))
-                    {
-                        throw new IllegalArgumentException("you must pass available keyword to search photo");
-                    }
-                    unsplashSearchPhoto(keyWord, page, perPage);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    String keyWord = (String)keywordObj;
+                    unsplashSearchPhoto(keyWord, from, to);
                 }
                 break;
                 case ACTION_UNSPLASH_SEARCH_COLLECTION:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
-                    String keyWord = bundle.getString("key_word");
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to"),
+                            keywordObj = event.getExtra("keyword");
+                    if(fromObj == null || toObj == null || keywordObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    if(keyWord == null || keyWord.equals(""))
-                    {
-                        throw new IllegalArgumentException("you must pass available keyword to search collection");
-                    }
-                    unsplashSearchCollection(keyWord, page, perPage);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    String keyWord = (String)keywordObj;
+                    unsplashSearchCollection(keyWord, from, to);
                 }
                 break;
                 case ACTION_UNSPLASH_GET_CURATED_PHOTO:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
-                    String order = bundle.getString("order");
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to"), orderObj = event.getExtra("order");
+                    if(fromObj == null || toObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    unsplashGetCuratedPhoto(page, perPage, order);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    String order = (String)orderObj;
+                    unsplashGetCuratedPhoto(from, to, order);
                 }
                 break;
                 case ACTION_UNSPLASH_GET_CURATED_COLLECTION:
                 {
-                    Bundle bundle = (Bundle)event.content;
-                    int page = bundle.getInt("page", -1);
-                    int perPage = bundle.getInt("per_page", -1);
-                    if(page == -1 || perPage == -1)
+                    Object fromObj = event.getExtra("from"), toObj = event.getExtra("to");
+                    if(fromObj == null || toObj == null)
                     {
                         throw new IllegalArgumentException("you must pass available page and per_page to UnSplashService");
                     }
-                    unsplashGetCuratedCollection(page, perPage);
+
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    unsplashGetCuratedCollection(from, to);
                 }
                 break;
                 default:
