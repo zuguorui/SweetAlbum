@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -43,8 +44,8 @@ public class UnSplashImageFragment extends Fragment {
     private LinkedList<PhotoBean> data = new LinkedList<>();
     private MyAdapter adapter;
 
-    private int currentPage = 0;
-    private int perPage = 20;
+    private int dataLength = 10;
+
     private int work_type = WorkType.BROWSE;
 
     private boolean hasMoreData = true;
@@ -135,6 +136,20 @@ public class UnSplashImageFragment extends Fragment {
         recyclerView.setOnTouchListener(zoomLayoutManager.getZoomOnTouchListener());
         recyclerView.setLayoutManager(zoomLayoutManager);
         recyclerView.setAdapter(adapter);
+
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int width = recyclerView.getMeasuredWidth();
+                int height = recyclerView.getMeasuredHeight();
+                int childHeight = zoomLayoutManager.getChildHeight();
+                int childWidth = zoomLayoutManager.getChildWidth();
+                int cols = (width / childWidth ) + 1;
+                int rows = (height / childHeight) + 1;
+                dataLength =
+            }
+        });
+
     }
 
     private class MyAdapter extends ImageNoGroupedAdapter
