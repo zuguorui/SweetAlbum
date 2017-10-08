@@ -166,6 +166,30 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         return layoutParams;
     }
 
+    public void setUpDragLoadView(DragLoadView upDragLoadView)
+    {
+        this.upDragLoadView = upDragLoadView;
+    }
+
+    public void setDownDragLoadView(DragLoadView downDragLoadView)
+    {
+        this.downDragLoadView = downDragLoadView;
+    }
+
+    public void removeUpDragLoadView()
+    {
+        upDragLoadView.removeOnLoadListener();
+        upDragLoadView = null;
+    }
+
+    public void removeDownDragLoadView()
+    {
+        downDragLoadView.removeOnLoadListener();
+        downDragLoadView = null;
+    }
+
+
+
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
 //        if(scrolling || zooming)
@@ -1008,6 +1032,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         {
             return 0;
         }
+
         int realMoveY =  - dy;
         Rect visibleRect = getVisibleRect();
         View last = getChildAt(getChildCount() - 1);

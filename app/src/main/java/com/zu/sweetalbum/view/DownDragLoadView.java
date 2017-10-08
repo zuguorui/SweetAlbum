@@ -13,14 +13,14 @@ import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
 
 /**
- * Created by zu on 17-9-25.
+ * Created by zu on 2017/10/8.
  */
 
-public class UpDragLoadView extends DragLoadView {
+public class DownDragLoadView extends DragLoadView {
     private ImageView imageView;
     private TextView textView;
     private ValueAnimator animator = null;
-    public UpDragLoadView(@NonNull Context context) {
+    public DownDragLoadView(@NonNull Context context) {
         super(context);
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         this.setLayoutParams(layoutParams);
@@ -28,7 +28,7 @@ public class UpDragLoadView extends DragLoadView {
         this.addView(view);
         imageView = (ImageView)view.findViewById(R.id.DragLoad_imageView);
         textView = (TextView)view.findViewById(R.id.DragLoad_textView);
-        textView.setText("下拉刷新");
+        textView.setText("上拉加载更多");
 
     }
 
@@ -55,10 +55,10 @@ public class UpDragLoadView extends DragLoadView {
         animator.resume();
         if(success)
         {
-            textView.setText("刷新成功");
+            textView.setText("加载完成");
         }else
         {
-            textView.setText("刷新失败");
+            textView.setText("加载失败");
         }
     }
 
@@ -82,7 +82,7 @@ public class UpDragLoadView extends DragLoadView {
 
         }
         animator.start();
-        textView.setText("正在刷新");
+        textView.setText("正在加载");
 
 
     }

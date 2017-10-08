@@ -76,7 +76,7 @@ public class UnSplashService extends Service {
 
     public static final int CACHE_TIME = 5000;
 
-    private static final int PER_PAGE = 20;
+    private  int PER_PAGE = -1;
 
     private LinkedList<PhotoBean> photoBeanList = new LinkedList<>();
     private LinkedList<PhotoBean> curatedPhotoBeanList = new LinkedList<>();
@@ -110,6 +110,16 @@ public class UnSplashService extends Service {
     private Consumer messageConsumer = new Consumer<Event>() {
         @Override
         public void accept(@NonNull Event event) throws Exception {
+            if(PER_PAGE == -1)
+            {
+                Object fromObj = event.getExtra("from"), toObj = event.getExtra("to");
+                if(fromObj != null && toObj != null)
+                {
+                    int from = (int)fromObj;
+                    int to = (int)toObj;
+                    PER_PAGE = to - from;
+                }
+            }
             switch (event.action)
             {
                 case ACTION_UNSPLASH_GET_PHOTO:

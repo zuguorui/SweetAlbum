@@ -64,11 +64,11 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onLoadComplete()
+    public void onLoadComplete(boolean success)
     {
         if(onLoadListener != null)
         {
-            onLoadListener.onLoadComplete();
+            onLoadListener.onLoadComplete(success);
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class DragLoadView extends FrameLayout {
 
 
     public interface OnLoadListener{
-        void onLoadComplete();
+        void onLoadComplete(boolean success);
         void onLoadStart();
     }
 

@@ -2,6 +2,8 @@ package com.zu.sweetalbum.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.zu.sweetalbum.R;
@@ -22,9 +25,12 @@ import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
 import com.zu.sweetalbum.view.AlbumListView.ImageNoGroupedAdapter;
 import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
 import com.zu.sweetalbum.view.CheckableView;
+import com.zu.sweetalbum.view.DownDragLoadView;
+import com.zu.sweetalbum.view.UpDragLoadView;
 
 import java.io.File;
 import java.util.LinkedList;
+import java.util.logging.LogRecord;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -50,7 +56,15 @@ public class UnSplashImageFragment extends Fragment {
 
     private boolean hasMoreData = true;
 
+    private String keyWord;
 
+    private Handler uiHandler = new Handler();
+
+    private UpDragLoadView upDragLoadView;
+    private DownDragLoadView downDragLoadView;
+
+    private boolean waitRefresh = false;
+    private boolean waitLoadMore = false;
 
     private Consumer messageConsumer = new Consumer<Event>() {
         @Override
@@ -58,18 +72,88 @@ public class UnSplashImageFragment extends Fragment {
             switch (event.action)
             {
                 case ACTION_UNSPLASH_GET_PHOTO_SUCCESS:
-
+                {
+                    LinkedList<PhotoBean> temp = (LinkedList<PhotoBean>) event.content;
+                    data.addAll(temp);
+                    adapter.notifyDataSetChanged();
+                    if(waitLoadMore)
+                    {
+                        waitLoadMore = false;
+                        downDragLoadView.onLoadComplete(true);
+                    }
+                    if(waitRefresh)
+                    {
+                        waitRefresh = false;
+                        upDragLoadView.onLoadComplete(true);
+                    }
+                }
                     break;
                 case ACTION_UNSPLASH_GET_PHOTO_FAIL:
-
+                {
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "get photo error", Toast.LENGTH_SHORT).show();
+                            if(waitLoadMore)
+                            {
+                                waitLoadMore = false;
+                                downDragLoadView.onLoadComplete(false);
+                            }
+                            if(waitRefresh)
+                            {
+                                waitRefresh = false;
+                                upDragLoadView.onLoadComplete(false);
+                            }
+                        }
+                    });
+                }
                     break;
                 case ACTION_UNSPLASH_GET_CURATED_PHOTO_FAIL:
+                {
 
+                }
                     break;
                 case ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS:
 
                     break;
             }
+        }
+    };
+
+    private DragLoadView.OnDragListener upDragListener = new DragLoadView.OnDragListener() {
+        @Override
+        public void onDrag(float process) {
+
+        }
+
+        @Override
+        public void onDragRelease() {
+            upDragLoadView.onLoadStart();
+            data.clear();
+            acquireData(dataLength, true);
+        }
+
+        @Override
+        public void onDragStart() {
+
+        }
+    };
+
+    private DragLoadView.OnDragListener downDragListener = new DragLoadView.OnDragListener() {
+        @Override
+        public void onDrag(float process) {
+
+        }
+
+        @Override
+        public void onDragRelease() {
+            downDragLoadView.onLoadStart();
+            acquireData(dataLength, false);
+        }
+
+        @Override
+        public void onDragStart() {
+
         }
     };
 
@@ -95,14 +179,39 @@ public class UnSplashImageFragment extends Fragment {
         work_type = type;
     }
 
-    private void aquireData(int count)
+    private void acquireData(int count, boolean refresh)
     {
+        int from = 0, to = 0;
+        if(data == null || data.size() == 0)
+        {
+            from = 0;
+            to = from + count;
+        }else{
+            from = data.size();
+            to = from + count;
+        }
 
+        acquireData(from, to, refresh);
     }
 
-    private void aquireData(int from, int to)
+    private void acquireData(int from, int to, boolean refresh)
     {
-
+        if(work_type == WorkType.BROWSE)
+        {
+            Event event = new Event(ACTION_UNSPLASH_GET_PHOTO, null);
+            event.putExtra("from", from);
+            event.putExtra("to", to);
+            event.putExtra("refresh", refresh);
+            RxBus.getInstance().post(event);
+        }else if(work_type == WorkType.SEARCH)
+        {
+            Event event = new Event(ACTION_UNSPLASH_SEARCH_PHOTO, null);
+            event.putExtra("from", from);
+            event.putExtra("to", to);
+            event.putExtra("keyword", keyWord);
+            event.putExtra("refresh", refresh);
+            RxBus.getInstance().post(event);
+        }
     }
 
     @Override
@@ -146,9 +255,17 @@ public class UnSplashImageFragment extends Fragment {
                 int childWidth = zoomLayoutManager.getChildWidth();
                 int cols = (width / childWidth ) + 1;
                 int rows = (height / childHeight) + 1;
-                dataLength =
+                dataLength = 3 * cols * rows;
+                acquireData(dataLength, false);
+                recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+
+        upDragLoadView = new UpDragLoadView(getContext());
+        upDragLoadView.setOnDragListener(upDragListener);
+        downDragLoadView = new DownDragLoadView(getContext());
+        downDragLoadView.setOnDragListener(downDragListener);
+
 
     }
 
