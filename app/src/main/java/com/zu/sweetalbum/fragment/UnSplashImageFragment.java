@@ -261,6 +261,8 @@ public class UnSplashImageFragment extends Fragment {
             }
         });
 
+
+
         upDragLoadView = new UpDragLoadView(getContext());
         upDragLoadView.setOnDragListener(upDragListener);
         downDragLoadView = new DownDragLoadView(getContext());
