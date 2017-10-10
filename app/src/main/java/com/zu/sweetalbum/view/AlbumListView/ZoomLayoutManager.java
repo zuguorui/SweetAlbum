@@ -1083,6 +1083,15 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 {
                     int dis = Math.abs(upDragLoadView.getTop() - visibleRect.top);
                     float a = dis * 1.0f / upDragLoadView.getMeasuredHeight();
+                    if(a > 1.0f)
+                    {
+                        a = 1.0f;
+                    }
+                    int offset = (int)(realMoveY * a) + 10;
+                    if(offset + upDragLoadView.getTop() > visibleRect.top)
+                    {
+                        offset = visibleRect.top - upDragLoadView.getTop();
+                    }
 
                 }
             }else
