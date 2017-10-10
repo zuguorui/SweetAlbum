@@ -1083,34 +1083,54 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 {
                     int dis = Math.abs(upDragLoadView.getTop() - visibleRect.top);
                     float a = dis * 1.0f / upDragLoadView.getMeasuredHeight();
-                    if(a > 1.0f)
-                    {
-                        a = 1.0f;
-                    }
+//                    if(a > 1.0f)
+//                    {
+//                        a = 1.0f;
+//                    }
                     int offset = (int)(realMoveY * a) + 10;
+                    if(offset > realMoveY)
+                    {
+                        offset = realMoveY;
+                    }
                     if(offset + upDragLoadView.getTop() > visibleRect.top)
                     {
                         offset = visibleRect.top - upDragLoadView.getTop();
                     }
 
+                    if(offset != 0)
+                    {
+                        upDragLoadView.offsetTopAndBottom(offset);
+
+                    }
+                    return realMoveY - offset;
+
                 }
             }else
             {
-                if(upDragLoadView != null)
+                if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() > visibleRect.top)
                 {
-                    int upBottom = upDragLoadView.getBottom();
-                    if(upBottom > visibleRect.top)
+
+                    if(realMoveY < visibleRect.top - upDragLoadView.getBottom())
                     {
-                        if(realMoveY < visibleRect.top - upBottom)
-                        {
-                            realMoveY -= visibleRect.top - upBottom;
-                            upDragLoadView.offsetTopAndBottom(visibleRect.top - upBottom);
-                        }else
-                        {
-                            realMoveY = 0;
-                            upDragLoadView.offsetTopAndBottom(realMoveY);
-                        }
+                        realMoveY -= visibleRect.top - upDragLoadView.getBottom();
+                        upDragLoadView.offsetTopAndBottom(visibleRect.top - upDragLoadView.getBottom());
+                    }else
+                    {
+                        realMoveY = 0;
+                        upDragLoadView.offsetTopAndBottom(realMoveY);
                     }
+                }else if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() < visibleRect.bottom)
+                {
+                    int dis = visibleRect.bottom - downDragLoadView.getBottom();
+                    float a = dis * 1.0f / downDragLoadView.getMeasuredHeight();
+
+                    int offset = (int)(a * downDragLoadView.getMeasuredHeight());
+
+                    if(offset < realMoveY)
+                    {
+                        offset = realMoveY;
+                    }
+
                 }
             }
         }
