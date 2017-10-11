@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
+import android.text.style.UpdateAppearance;
 import android.util.Pair;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -22,6 +23,7 @@ import com.zu.sweetalbum.view.CheckableView;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.RecursiveAction;
 
 import static com.zu.sweetalbum.view.AlbumListView.ImageAdapter.VIEW_TYPE_UNZOOM;
 import static com.zu.sweetalbum.view.AlbumListView.ImageAdapter.VIEW_TYPE_ZOOM;
@@ -52,6 +54,70 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private DragLoadView upDragLoadView;
     private DragLoadView downDragLoadView;
 
+    private ValueAnimator upDragViewLayoutAnimator;
+    private ValueAnimator downDragViewLayoutAnimator;
+
+    private ValueAnimator.AnimatorUpdateListener upDragViewLayoutAnimatorListener = new ValueAnimator.AnimatorUpdateListener() {
+        //注意，此处的值为upDragView的bottom值，在初始化动画时要注意
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            int value = (int)animation.getAnimatedValue();
+            upDragLoadView.layout(upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
+        }
+    };
+
+    private ValueAnimator.AnimatorUpdateListener downDragViewLayoutAnimatorListener = new ValueAnimator.AnimatorUpdateListener() {
+        @Override
+        public void onAnimationUpdate(ValueAnimator animation) {
+            int value = (int)animation.getAnimatedValue();
+            downDragLoadView.layout(downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
+        }
+    };
+
+    private DragLoadView.OnLoadListener upOnLoadListener = new DragLoadView.OnLoadListener() {
+        @Override
+        public void onLoadComplete(boolean success) {
+
+        }
+
+        @Override
+        public void onLoadStart() {
+
+        }
+
+        @Override
+        public void onLoadCancel() {
+            if(upDragViewLayoutAnimator != null)
+            {
+                upDragViewLayoutAnimator.cancel();
+                upDragViewLayoutAnimator = null;
+            }
+
+            upDragViewLayoutAnimator = ValueAnimator.ofInt(upDragLoadView.getBottom(), getVisibleRect().top);
+            upDragViewLayoutAnimator.setDuration(500);
+            upDragViewLayoutAnimator.addUpdateListener(upDragViewLayoutAnimatorListener);
+
+
+        }
+    };
+
+    private DragLoadView.OnLoadListener downOnLoadListener = new DragLoadView.OnLoadListener() {
+        @Override
+        public void onLoadComplete(boolean success) {
+
+        }
+
+        @Override
+        public void onLoadStart() {
+
+        }
+
+        @Override
+        public void onLoadCancel() {
+
+        }
+    };
+
     private boolean scrolling = false;
     private boolean zooming = false;
 
@@ -68,6 +134,18 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     isTouching = false;
+                    Rect visibleRect = getVisibleRect();
+                    if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
+                    {
+                        float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+                        upDragLoadView.onDragRelease(process);
+                    }
+
+                    if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() <= visibleRect.bottom)
+                    {
+                        float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+                        downDragLoadView.onDragRelease(process);
+                    }
                     break;
             }
             return false;
@@ -196,11 +274,13 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     public void setUpDragLoadView(DragLoadView upDragLoadView)
     {
         this.upDragLoadView = upDragLoadView;
+        this.upDragLoadView.setOnLoadListener(upOnLoadListener);
     }
 
     public void setDownDragLoadView(DragLoadView downDragLoadView)
     {
         this.downDragLoadView = downDragLoadView;
+        this.downDragLoadView.setOnLoadListener(downOnLoadListener);
     }
 
     public void removeUpDragLoadView()
@@ -1068,15 +1148,21 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             {
                 if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() < visibleRect.bottom )
                 {
+                    int offset = realMoveY;
+                    if(offset + downDragLoadView.getTop()> visibleRect.bottom )
+                    {
+                        offset = visibleRect.bottom - downDragLoadView.getTop();
 
-                    if(realMoveY > visibleRect.bottom - downDragLoadView.getTop())
+                    }
+
+                    downDragLoadView.offsetTopAndBottom(offset);
+                    float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+                    downDragLoadView.onDrag(process);
+                    realMoveY -= offset;
+
+                    if(downDragLoadView.getTop() > visibleRect.bottom)
                     {
-                        realMoveY -= visibleRect.bottom - downDragLoadView.getTop();
-                        downDragLoadView.offsetTopAndBottom(visibleRect.bottom - downDragLoadView.getTop());
-                    }else
-                    {
-                        downDragLoadView.offsetTopAndBottom(realMoveY);
-                        realMoveY = 0;
+                        removeView(downDragLoadView);
                     }
 
                 }else if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
@@ -1100,6 +1186,8 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                     if(offset != 0)
                     {
                         upDragLoadView.offsetTopAndBottom(offset);
+                        float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+                        upDragLoadView.onDrag(process);
 
                     }
                     return realMoveY - offset;
@@ -1109,15 +1197,19 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             {
                 if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() > visibleRect.top)
                 {
+                    int offset = realMoveY;
+                    if(offset < visibleRect.top - upDragLoadView.getBottom())
+                    {
+                        offset = visibleRect.top - upDragLoadView.getBottom();
+                    }
+                    upDragLoadView.offsetTopAndBottom(offset);
+                    float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+                    upDragLoadView.onDrag(process);
+                    realMoveY -= offset;
 
-                    if(realMoveY < visibleRect.top - upDragLoadView.getBottom())
+                    if(upDragLoadView.getBottom() < visibleRect.top)
                     {
-                        realMoveY -= visibleRect.top - upDragLoadView.getBottom();
-                        upDragLoadView.offsetTopAndBottom(visibleRect.top - upDragLoadView.getBottom());
-                    }else
-                    {
-                        realMoveY = 0;
-                        upDragLoadView.offsetTopAndBottom(realMoveY);
+                        removeView(upDragLoadView);
                     }
                 }else if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() < visibleRect.bottom)
                 {
@@ -1131,11 +1223,24 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                         offset = realMoveY;
                     }
 
+                    if(offset + downDragLoadView.getBottom() < visibleRect.bottom)
+                    {
+                        offset = visibleRect.bottom - downDragLoadView.getBottom();
+                    }
+
+                    if(offset != 0)
+                    {
+                        downDragLoadView.offsetTopAndBottom(offset);
+                        float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+                        downDragLoadView.onDrag(process);
+                    }
+                    return realMoveY - offset;
+
                 }
             }
         }
 
-        if(getItemCount() <= 0 || state.isPreLayout() || dy == 0)
+        if(getItemCount() <= 0 || state.isPreLayout() || realMoveY == 0)
         {
             return 0;
         }
@@ -1144,35 +1249,37 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         View last = getChildAt(getChildCount() - 1);
         View first = getChildAt(0);
 
+        int contentOffset = realMoveY;
+
         if(last == null || first == null)
         {
-            realMoveY = 0;
+//            realMoveY = 0;
         }else
         {
             if(getPosition(last) == getItemCount() - 1)
             {
-                if(getDecoratedBottom(last) + realMoveY < visibleRect.bottom)
+                if(getDecoratedBottom(last) + contentOffset < visibleRect.bottom)
                 {
-                    realMoveY = visibleRect.bottom - getDecoratedBottom(last);
+                    contentOffset = visibleRect.bottom - getDecoratedBottom(last);
                 }
             }
 
             if(getPosition(first) == 0)
             {
-                if(getDecoratedTop(first) + realMoveY > visibleRect.top)
+                if(getDecoratedTop(first) + contentOffset > visibleRect.top)
                 {
-                    realMoveY = visibleRect.top - getDecoratedTop(first);
+                    contentOffset = visibleRect.top - getDecoratedTop(first);
                 }
             }
         }
 
+        realMoveY -= contentOffset;
 
-
-        if(realMoveY != 0)
+        if(contentOffset != 0)
         {
-            offsetChildrenVertical(realMoveY);
+            offsetChildrenVertical(contentOffset);
 //            checkAndRemoveChild(0, recycler);
-            if(realMoveY > 0)
+            if(contentOffset > 0)
             {
                 first = getChildAt(0);
                 int offset = getDecoratedTop(first);
@@ -1192,20 +1299,60 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 
             }
 
-        }else if(isTouching)
+        }
+
+        if(isTouching && realMoveY != 0)
         {
-            realMoveY = -dy;
             if(realMoveY > 0)
             {
+                if(upDragLoadView != null)
+                {
+                    if(upDragLoadView.getParent() == null)
+                    {
+                        upDragLoadView.layout(visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
+                                visibleRect.right, visibleRect.top);
+
+                        addView(upDragLoadView, 0);
+                        upDragLoadView.onDragStart();
+
+                    }
+
+                    int offset = realMoveY;
+                    if(offset + upDragLoadView.getTop() > visibleRect.top)
+                    {
+                        offset = visibleRect.top - upDragLoadView.getTop();
+                    }
+                    upDragLoadView.offsetTopAndBottom(offset);
+                    float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+                    upDragLoadView.onDrag(process);
+                    realMoveY -= offset;
+                }
 
             }else
             {
-
+                if(downDragLoadView != null)
+                {
+                    if(downDragLoadView.getParent() == null)
+                    {
+                        downDragLoadView.layout(visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
+                        addView(downDragLoadView);
+                        downDragLoadView.onDragStart();
+                    }
+                    int offset = realMoveY;
+                    if(offset + downDragLoadView.getBottom() < visibleRect.bottom)
+                    {
+                        offset = visibleRect.bottom - downDragLoadView.getBottom();
+                    }
+                    downDragLoadView.offsetTopAndBottom(offset);
+                    float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+                    downDragLoadView.onDrag(process);
+                    realMoveY -= offset;
+                }
             }
         }
 
         scrolling = false;
-        return -realMoveY;
+        return dy;
     }
 
     @Override

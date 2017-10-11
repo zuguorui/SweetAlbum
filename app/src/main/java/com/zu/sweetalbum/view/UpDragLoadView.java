@@ -39,8 +39,8 @@ public class UpDragLoadView extends DragLoadView {
     }
 
     @Override
-    public void onDragRelease() {
-        super.onDragRelease();
+    public void onDragRelease(float process) {
+        super.onDragRelease(process);
     }
 
     @Override

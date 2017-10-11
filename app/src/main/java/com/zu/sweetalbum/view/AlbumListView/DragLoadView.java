@@ -48,11 +48,11 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onDragRelease()
+    public void onDragRelease(float process)
     {
         if(onDragListener != null)
         {
-            onDragListener.onDragRelease();
+            onDragListener.onDragRelease(process);
         }
     }
 
@@ -80,16 +80,25 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
+    public void onLoadCancel()
+    {
+        if(onLoadListener != null)
+        {
+            onLoadListener.onLoadCancel();
+        }
+    }
+
 
 
     public interface OnLoadListener{
         void onLoadComplete(boolean success);
         void onLoadStart();
+        void onLoadCancel();
     }
 
     public interface OnDragListener{
         void onDrag(float process);
-        void onDragRelease();
+        void onDragRelease(float process);
         void onDragStart();
     }
 }
