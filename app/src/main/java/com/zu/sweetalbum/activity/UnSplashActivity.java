@@ -1,5 +1,6 @@
 package com.zu.sweetalbum.activity;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -14,6 +15,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.zu.sweetalbum.R;
+import com.zu.sweetalbum.fragment.UnSplashCollectionFragment;
+import com.zu.sweetalbum.fragment.UnSplashImageFragment;
+import com.zu.sweetalbum.service.UnSplashService;
 import com.zu.sweetalbum.util.CommonUtil;
 import com.zu.sweetalbum.view.TextViewPagerIndicator;
 
@@ -36,12 +40,21 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private MyFragmentAdapter fragmentAdapter = new MyFragmentAdapter(getSupportFragmentManager());
 
+    private UnSplashImageFragment imageFragment;
+    private UnSplashCollectionFragment collectionFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_un_splash);
         initViews();
+        if(!UnSplashService.isServiceRunning())
+        {
+
+        }
+        Intent intent = new Intent(this, UnSplashService.class);
+        startService(intent);
     }
 
     private void initViews()
@@ -69,7 +82,11 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
         actionBarContainer.setPadding(actionBarContainer.getPaddingLeft(), actionBarContainer.getPaddingTop() + statusBarHeight,
                 actionBarContainer.getPaddingRight(), actionBarContainer.getPaddingBottom());
 
+        imageFragment = new UnSplashImageFragment();
+        fragments.add(imageFragment);
+        mViewPager.setAdapter(fragmentAdapter);
 
+        viewPagerIndicator.addTag("Pictures");
 
 
 

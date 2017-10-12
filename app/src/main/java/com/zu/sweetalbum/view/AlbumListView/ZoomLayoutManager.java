@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 
 import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.view.CheckableView;
@@ -77,26 +79,18 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private DragLoadView.OnLoadListener upOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-
+            animateUpDragView(getVisibleRect().top);
         }
 
         @Override
         public void onLoadStart() {
-
+            animateUpDragView(getVisibleRect().top + upDragLoadView.getMeasuredHeight());
         }
 
         @Override
         public void onLoadCancel() {
-            if(upDragViewLayoutAnimator != null)
-            {
-                upDragViewLayoutAnimator.cancel();
-                upDragViewLayoutAnimator = null;
-            }
 
-            upDragViewLayoutAnimator = ValueAnimator.ofInt(upDragLoadView.getBottom(), getVisibleRect().top);
-            upDragViewLayoutAnimator.setDuration(500);
-            upDragViewLayoutAnimator.addUpdateListener(upDragViewLayoutAnimatorListener);
-
+            animateUpDragView(getVisibleRect().top);
 
         }
     };
@@ -104,17 +98,17 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private DragLoadView.OnLoadListener downOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-
+            animateDownDragView(getVisibleRect().bottom);
         }
 
         @Override
         public void onLoadStart() {
-
+            animateDownDragView(getVisibleRect().bottom - downDragLoadView.getMeasuredHeight());
         }
 
         @Override
         public void onLoadCancel() {
-
+            animateDownDragView(getVisibleRect().bottom);
         }
     };
 
@@ -170,6 +164,46 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         if(onItemClickListener != null)
         {
             onItemClickListener.onItemClicked(position);
+        }
+    }
+
+    private void animateUpDragView(int targetBottom)
+    {
+        stopUpDragViewAnimator();
+
+        upDragViewLayoutAnimator = ValueAnimator.ofInt(upDragLoadView.getBottom(), targetBottom);
+        upDragViewLayoutAnimator.setDuration(500);
+        upDragViewLayoutAnimator.addUpdateListener(upDragViewLayoutAnimatorListener);
+        upDragViewLayoutAnimator.start();
+    }
+
+    private void stopUpDragViewAnimator()
+    {
+        if(upDragViewLayoutAnimator != null)
+        {
+            upDragViewLayoutAnimator.cancel();
+            upDragViewLayoutAnimator = null;
+        }
+    }
+
+    private void animateDownDragView(int targetTop)
+    {
+        stopDownDragViewAnimator();
+
+        downDragViewLayoutAnimator = ValueAnimator.ofInt(downDragLoadView.getTop(), targetTop);
+        downDragViewLayoutAnimator.setDuration(500);
+        downDragViewLayoutAnimator.addUpdateListener(downDragViewLayoutAnimatorListener);
+        downDragViewLayoutAnimator.start();
+
+
+    }
+
+    private void stopDownDragViewAnimator()
+    {
+        if(downDragViewLayoutAnimator != null)
+        {
+            downDragViewLayoutAnimator.cancel();
+            downDragViewLayoutAnimator = null;
         }
     }
 

@@ -63,6 +63,8 @@ public class UnSplashImageFragment extends Fragment {
     private UpDragLoadView upDragLoadView;
     private DownDragLoadView downDragLoadView;
 
+
+
     private boolean waitRefresh = false;
     private boolean waitLoadMore = false;
 
@@ -127,10 +129,17 @@ public class UnSplashImageFragment extends Fragment {
         }
 
         @Override
-        public void onDragRelease() {
-            upDragLoadView.onLoadStart();
-            data.clear();
-            acquireData(dataLength, true);
+        public void onDragRelease(float process) {
+            if(process > 0.7f)
+            {
+                upDragLoadView.onLoadStart();
+                data.clear();
+                acquireData(dataLength, true);
+            }else
+            {
+                upDragLoadView.onLoadCancel();
+            }
+
         }
 
         @Override
@@ -146,9 +155,15 @@ public class UnSplashImageFragment extends Fragment {
         }
 
         @Override
-        public void onDragRelease() {
-            downDragLoadView.onLoadStart();
-            acquireData(dataLength, false);
+        public void onDragRelease(float process) {
+            if(process > 0.7f)
+            {
+                downDragLoadView.onLoadStart();
+                acquireData(dataLength, false);
+            }else
+            {
+                downDragLoadView.onLoadCancel();
+            }
         }
 
         @Override

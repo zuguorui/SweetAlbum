@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private View ftpTransButton;
     private View aboutButton;
+    private View unsplashButton;
 
     private View slideMenu;
 
@@ -330,6 +331,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 break;
             }
+            case R.id.SlideMenu_unsplash:
+            {
+                Intent intent = new Intent(this, UnSplashActivity.class);
+                startActivity(intent);
+            }
+                break;
             default:
                 break;
 
@@ -668,6 +675,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ftpTransButton.setOnClickListener(this);
         aboutButton = findViewById(R.id.SlideMenu_about);
         aboutButton.setOnClickListener(this);
+        unsplashButton = findViewById(R.id.SlideMenu_unsplash);
+        unsplashButton.setOnClickListener(this);
+
 
         customActionBarArea = (FrameLayout)findViewById(R.id.MainActivity_actionBar_custom_area);
         actionBarContainer = (ViewGroup)findViewById(R.id.MainActivity_ActionBar);

@@ -94,6 +94,8 @@
 
         <activity android:name=".activity.AboutActivity" />
 
+        <activity android:name=".activity.UnSplashActivity"/>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.zu.sweetalbum"
@@ -104,7 +106,7 @@
                 android:resource="@xml/file_path" />
         </provider>
 
-        <activity android:name=".activity.UnSplashActivity"></activity>
+        <service android:name=".service.UnSplashService"/>
     </application>
 
 </manifest>

@@ -258,7 +258,7 @@ public class UnSplashService extends Service {
     {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new UnSplashSignInterceptor())
-                .addInterceptor(new CacheInterceptor())
+//                .addInterceptor(new CacheInterceptor())
                 .build();
 
 
@@ -389,6 +389,7 @@ public class UnSplashService extends Service {
         call.enqueue(new Callback<LinkedList<PhotoBean>>() {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
+                int code = response.code();
                 LinkedList<PhotoBean> list = response.body();
                 if(list != null && list.size() != 0)
                 {
