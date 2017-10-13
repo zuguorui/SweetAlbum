@@ -48,13 +48,14 @@ public class UnSplashActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_un_splash);
+        Intent intent = new Intent(this, UnSplashService.class);
+        startService(intent);
         initViews();
         if(!UnSplashService.isServiceRunning())
         {
 
         }
-        Intent intent = new Intent(this, UnSplashService.class);
-        startService(intent);
+
     }
 
     private void initViews()

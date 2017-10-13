@@ -289,10 +289,18 @@ public class UnSplashService extends Service {
             return -1;
         }
         int size = srcList.size();
+        if(targetList == null)
+        {
+            targetList = new LinkedList();
+        }
 
         if(size >= to)
         {
-            targetList = (LinkedList) srcList.subList(from, to);
+            for(Object o : srcList.subList(from, to))
+            {
+                targetList.add(o);
+            }
+
 
             return 0;
         }
@@ -304,7 +312,10 @@ public class UnSplashService extends Service {
 
         if(to >= size && from < size)
         {
-            targetList = (LinkedList)srcList.subList(from, size);
+            for(Object o : srcList.subList(from, size))
+            {
+                targetList.add(o);
+            }
 
             return 1;
         }

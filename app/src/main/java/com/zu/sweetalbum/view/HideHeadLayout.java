@@ -15,6 +15,8 @@ public class HideHeadLayout extends LinearLayout{
     private int touchSlop = 4;
     private int oldX, oldY, newX, newY, dx, dy;
 
+    private boolean firstDispatch = true;
+
     public HideHeadLayout(Context context) {
         super(context);
     }
@@ -39,6 +41,7 @@ public class HideHeadLayout extends LinearLayout{
         {
             return false;
         }
+        View header = getChildAt(0);
         switch (ev.getActionMasked())
         {
             case MotionEvent.ACTION_DOWN:
@@ -53,12 +56,20 @@ public class HideHeadLayout extends LinearLayout{
                 newY = (int)ev.getY();
                 dx = newX - oldX;
                 dy = newY - oldY;
-                if(Math.abs(dx) >= touchSlop)
+                if(Math.abs(dy) >= touchSlop)
                 {
+                    if((dy > 0 && header.getTop() < getPaddingTop()) ||
+                            (dy < 0 && header.getBottom() > getPaddingTop()))
+                        scrollViewY(dy, ev);
                     intercepted = true;
+                }else
+                {
+                    intercepted = false;
                 }
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                firstDispatch = true;
                 intercepted = false;
                 break;
             default:
@@ -66,7 +77,7 @@ public class HideHeadLayout extends LinearLayout{
                 break;
 
         }
-        return intercepted;
+        return false;
     }
 
     @Override
@@ -89,12 +100,14 @@ public class HideHeadLayout extends LinearLayout{
                 newY = (int)event.getY();
                 dx = newX - oldX;
                 dy = newY - oldY;
-                if(Math.abs(dx) >= touchSlop)
+                if(Math.abs(dy) >= touchSlop)
                 {
-                    consumed = scrollViewY(dy);
+                    consumed = scrollViewY(dy, event);
                 }
                 break;
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                firstDispatch = true;
                 consumed = false;
                 break;
             default:
@@ -104,32 +117,36 @@ public class HideHeadLayout extends LinearLayout{
         return consumed;
     }
 
-    private boolean scrollViewY(int dy)
+    private boolean scrollViewY(int dy, MotionEvent event)
     {
         boolean scrolled = false;
-        int realDy = 0;
+        int realDy = dy;
         if(getChildCount() < 2)
         {
             return false;
         }
         View header = getChildAt(0);
-        if(header.getTop() + dy > getPaddingTop())
+        if(header.getTop() + realDy > getPaddingTop())
         {
             realDy = getPaddingTop() - header.getTop();
         }
-        if(header.getBottom() + dy < getPaddingTop())
+        if(header.getBottom() + realDy < getPaddingTop())
         {
             realDy = getPaddingTop() - header.getBottom();
         }
         if(realDy == 0)
         {
+//            requestDisallowInterceptTouchEvent(true);
             return false;
         }
         MarginLayoutParams layoutParams = (MarginLayoutParams) header.getLayoutParams();
         layoutParams.topMargin += realDy;
         header.setLayoutParams(layoutParams);
-        requestLayout();
+//        header.offsetTopAndBottom(realDy);
+//        requestLayout();
         scrolled = true;
         return scrolled;
     }
+
+
 }
