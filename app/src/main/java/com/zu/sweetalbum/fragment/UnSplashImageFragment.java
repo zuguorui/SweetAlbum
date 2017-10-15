@@ -16,9 +16,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.zu.sweetalbum.R;
 import com.zu.sweetalbum.module.WorkType;
 import com.zu.sweetalbum.module.unsplash.PhotoBean;
+import com.zu.sweetalbum.service.UnSplashService;
 import com.zu.sweetalbum.util.rxbus.Event;
 import com.zu.sweetalbum.util.rxbus.RxBus;
 import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
@@ -67,6 +69,8 @@ public class UnSplashImageFragment extends Fragment {
 
     private boolean waitRefresh = false;
     private boolean waitLoadMore = false;
+
+    private Runnable waitRunnable = null;
 
     private Consumer messageConsumer = new Consumer<Event>() {
         @Override
@@ -117,6 +121,13 @@ public class UnSplashImageFragment extends Fragment {
                     break;
                 case ACTION_UNSPLASH_GET_CURATED_PHOTO_SUCCESS:
 
+                    break;
+
+                case ACTION_UNSPLASH_SERVICE_STARTED:
+                    if(waitRunnable != null)
+                    {
+                        new Thread(waitRunnable).start();
+                    }
                     break;
             }
         }
@@ -271,7 +282,18 @@ public class UnSplashImageFragment extends Fragment {
                 int cols = (width / childWidth ) + 1;
                 int rows = (height / childHeight) + 1;
                 dataLength = 3 * cols * rows;
-                acquireData(dataLength, false);
+                if(!UnSplashService.isServiceRunning())
+                {
+                    waitRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            acquireData(dataLength, false);
+                        }
+                    };
+                }else
+                {
+                    acquireData(dataLength, false);
+                }
                 recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
@@ -318,6 +340,7 @@ public class UnSplashImageFragment extends Fragment {
 
             Glide.with(UnSplashImageFragment.this)
                     .load(data.get(position).urls.small)
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .into(((ImageViewHolder)holder).imageView);
         }
 

@@ -71,6 +71,8 @@ public class UnSplashService extends Service {
     public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_SUCCESS = "action_unsplash_search_collection_success";
     public static final String ACTION_UNSPLASH_SEARCH_COLLECTION_FAIL = "action_unsplash_search_collection_fail";
 
+    public static final String ACTION_UNSPLASH_SERVICE_STARTED = "action_unsplash_service_started";
+
     public static final String FLAG_ACHIEVE_END = "flag_achieve_end";
 
 
@@ -236,6 +238,7 @@ public class UnSplashService extends Service {
         initCommonRetrofit();
         Disposable disposable = RxBus.getInstance().toObservable().subscribe(messageConsumer, errorConsumer);
         mDisposable.add(disposable);
+        RxBus.getInstance().post(new Event(ACTION_UNSPLASH_SERVICE_STARTED, null));
     }
 
     @Override
