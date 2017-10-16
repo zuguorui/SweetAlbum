@@ -25,6 +25,9 @@ import java.util.ServiceConfigurationError;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.CompositeDisposable;
@@ -261,6 +264,7 @@ public class UnSplashService extends Service {
     {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new UnSplashSignInterceptor())
+                .connectTimeout(10000, TimeUnit.SECONDS)
 //                .addInterceptor(new CacheInterceptor())
                 .build();
 
@@ -404,6 +408,29 @@ public class UnSplashService extends Service {
             @Override
             public void onResponse(Call<LinkedList<PhotoBean>> call, Response<LinkedList<PhotoBean>> response) {
                 int code = response.code();
+                String links = response.headers().get("link");
+                String[] l = links.split(",");
+                for(String s : l)
+                {
+                    s = s.trim();
+                    if (s.contains("rel=\"last\""))
+                    {
+                        Pattern p = Pattern.compile("<https://.*[&|?]page=([0-9]+).*>.*");
+                        Matcher matcher = p.matcher(s);
+                        boolean matched = matcher.matches();
+                        String group = matcher.group(1);
+                        try{
+                            int page = Integer.parseInt(group);
+                            if(page == photoStatus.pageNum)
+                            {
+                                photoStatus.achieveEnd = true;
+                            }
+                        }catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                }
                 LinkedList<PhotoBean> list = response.body();
                 if(list != null && list.size() != 0)
                 {
@@ -411,7 +438,7 @@ public class UnSplashService extends Service {
                     photoStatus.pageNum++;
                 }
 
-                if(list == null || list.size() < PER_PAGE)
+                if(list == null)
                 {
                     photoStatus.achieveEnd = true;
                 }
@@ -636,7 +663,7 @@ public class UnSplashService extends Service {
 
 
     private class Status{
-        public int pageNum = 0;
+        public int pageNum = 1;
         public boolean achieveEnd = false;
     }
 

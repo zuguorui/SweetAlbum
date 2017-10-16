@@ -305,6 +305,9 @@ public class UnSplashImageFragment extends Fragment {
         downDragLoadView = new DownDragLoadView(getContext());
         downDragLoadView.setOnDragListener(downDragListener);
 
+        zoomLayoutManager.setUpDragLoadView(upDragLoadView);
+        zoomLayoutManager.setDownDragLoadView(downDragLoadView);
+
 
     }
 

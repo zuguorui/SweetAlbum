@@ -91,7 +91,7 @@ public class HideHeadLayout extends LinearLayout{
         int count = ev.getPointerCount();
         if(count > 1)
         {
-            return false;
+            return super.dispatchTouchEvent(ev);
         }
         switch (ev.getActionMasked())
         {

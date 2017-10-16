@@ -22,6 +22,7 @@ import android.view.animation.TranslateAnimation;
 import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.view.CheckableView;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -64,7 +65,8 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             int value = (int)animation.getAnimatedValue();
-            upDragLoadView.layout(upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
+            layoutDecorated(upDragLoadView, upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
+//            upDragLoadView.layout(upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
         }
     };
 
@@ -72,7 +74,8 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             int value = (int)animation.getAnimatedValue();
-            downDragLoadView.layout(downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
+            layoutDecorated(downDragLoadView, downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
+//            downDragLoadView.layout(downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
         }
     };
 
@@ -120,6 +123,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private View.OnGenericMotionListener genericMotionListener = new View.OnGenericMotionListener() {
         @Override
         public boolean onGenericMotion(View v, MotionEvent event) {
+            log.d("OnGenericMotionListener ev achieve");
             switch (event.getAction())
             {
                 case MotionEvent.ACTION_DOWN:
@@ -309,12 +313,55 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     {
         this.upDragLoadView = upDragLoadView;
         this.upDragLoadView.setOnLoadListener(upOnLoadListener);
+        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(upDragLoadView.getLayoutParams());
+        upDragLoadView.setLayoutParams(layoutParams);
+        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(upDragLoadView){
+
+        };
+        try{
+            Class layoutParamsClass = (Class)layoutParams.getClass();
+            Field[] fields = layoutParamsClass.getDeclaredFields();
+            for(Field f : fields)
+            {
+                if(f.getName().equals("mViewHolder"))
+                {
+                    f.setAccessible(true);
+                    f.set(layoutParams, viewHolder);
+                    break;
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
     }
 
     public void setDownDragLoadView(DragLoadView downDragLoadView)
     {
         this.downDragLoadView = downDragLoadView;
         this.downDragLoadView.setOnLoadListener(downOnLoadListener);
+        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(downDragLoadView.getLayoutParams());
+        downDragLoadView.setLayoutParams(layoutParams);
+        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(downDragLoadView) {
+
+        };
+        try{
+            Class layoutParamsClass = (Class) layoutParams.getClass();
+            Field[] fields = layoutParamsClass.getDeclaredFields();
+            for(Field f : fields)
+            {
+                if(f.getName().equals("mViewHolder"))
+                {
+                    f.setAccessible(true);
+                    f.set(layoutParams, viewHolder);
+                    break;
+                }
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
     public void removeUpDragLoadView()
@@ -341,7 +388,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         mRecycler = recycler;
         if(adapter == null)
         {
-            log.d("item count = " + getItemCount());
+//            log.d("item count = " + getItemCount());
             return;
         }
         Rect visibleRect = getVisibleRect();
@@ -360,7 +407,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 //        fillDown(startPosition, offset, recycler, state);
 //        fill(startPosition, offset, recycler);
         fillDown(startPosition, offset, recycler);
-        log.d("onLayoutChildren, child count = " + getChildCount());
+//        log.d("onLayoutChildren, child count = " + getChildCount());
 
     }
 
@@ -1343,8 +1390,10 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 {
                     if(upDragLoadView.getParent() == null)
                     {
-                        upDragLoadView.layout(visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
+                        layoutDecorated(upDragLoadView, visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
                                 visibleRect.right, visibleRect.top);
+//                        upDragLoadView.layout(visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
+//                                visibleRect.right, visibleRect.top);
 
                         addView(upDragLoadView, 0);
                         upDragLoadView.onDragStart();
@@ -1368,8 +1417,10 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 {
                     if(downDragLoadView.getParent() == null)
                     {
-                        downDragLoadView.layout(visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
+                        layoutDecorated(downDragLoadView, visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
                         addView(downDragLoadView);
+//                        downDragLoadView.layout(visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
+//                        addView(downDragLoadView);
                         downDragLoadView.onDragStart();
                     }
                     int offset = realMoveY;
@@ -1875,6 +1926,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 animateZoom(center);
             }
         });
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             int pointCount = event.getPointerCount();
@@ -1893,6 +1945,29 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                 {
                     checkItems((int)event.getX(), (int)event.getY());
                     return true;
+                }
+
+                switch (event.getAction())
+                {
+                    case MotionEvent.ACTION_DOWN:
+                        isTouching = true;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        isTouching = false;
+                        Rect visibleRect = getVisibleRect();
+                        if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
+                        {
+                            float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+                            upDragLoadView.onDragRelease(process);
+                        }
+
+                        if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() <= visibleRect.bottom)
+                        {
+                            float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+                            downDragLoadView.onDragRelease(process);
+                        }
+                        break;
                 }
             }
             return false;
