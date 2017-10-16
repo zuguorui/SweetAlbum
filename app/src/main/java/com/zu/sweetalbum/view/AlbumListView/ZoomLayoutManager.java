@@ -313,6 +313,9 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     {
         this.upDragLoadView = upDragLoadView;
         this.upDragLoadView.setOnLoadListener(upOnLoadListener);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(getVisibleRect().width(), View.MeasureSpec.AT_MOST);
+        upDragLoadView.measure(widthSpec, heightSpec);
         RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(upDragLoadView.getLayoutParams());
         upDragLoadView.setLayoutParams(layoutParams);
         RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(upDragLoadView){
@@ -341,6 +344,9 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     {
         this.downDragLoadView = downDragLoadView;
         this.downDragLoadView.setOnLoadListener(downOnLoadListener);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(getVisibleRect().width(), View.MeasureSpec.AT_MOST);
+        downDragLoadView.measure(widthSpec, heightSpec);
         RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(downDragLoadView.getLayoutParams());
         downDragLoadView.setLayoutParams(layoutParams);
         RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(downDragLoadView) {
@@ -1240,6 +1246,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
                     float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
                     downDragLoadView.onDrag(process);
                     realMoveY -= offset;
+
 
                     if(downDragLoadView.getTop() > visibleRect.bottom)
                     {
