@@ -465,10 +465,12 @@ public class ImageSwitchView extends ViewGroup {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         boolean consumed = false;
         consumed = super.dispatchTouchEvent(ev);
+//        log.v("第一次分发，consumed = " + consumed);
         if(!consumed)
         {
             handleEventQueue = true;
             consumed = super.dispatchTouchEvent(ev);
+            log.v("第二次分发，consumed = " + consumed);
         }
         return consumed;
     }
@@ -478,7 +480,7 @@ public class ImageSwitchView extends ViewGroup {
         switch (ev.getActionMasked())
         {
             case MotionEvent.ACTION_DOWN:
-                log.v("ACTION_DOWN");
+                log.v("onInterceptTouchEvent, ACTION_DOWN");
 
                 if(mScroller != null)
                 {
@@ -515,7 +517,7 @@ public class ImageSwitchView extends ViewGroup {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-//                log.v("ACTION_MOVE");
+                log.v("ACTION_MOVE");
                 long id = event.getPointerId(0);
                 if(firstHandleEvent || id != lastId)
                 {
@@ -549,7 +551,7 @@ public class ImageSwitchView extends ViewGroup {
             default:
                 break;
         }
-        return consumed;
+        return true;
 
     }
 
