@@ -7,5 +7,6 @@
         <attr name="maxZoomLevel"/>
         <attr name="horizontalInterval"/>
         <attr name="heightToWidthRatio"/>
+
     </declare-styleable>
 </resources>
