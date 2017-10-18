@@ -3,10 +3,21 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <android.support.v7.widget.RecyclerView
+    <com.zu.sweetalbum.view.DragToLoadLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/UnSplashImageFragment_recyclerView">
+        android:layout_height="match_parent">
+        <com.zu.sweetalbum.view.UpDragLoadView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"></com.zu.sweetalbum.view.UpDragLoadView>
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/UnSplashImageFragment_recyclerView">
 
-    </android.support.v7.widget.RecyclerView>
+        </android.support.v7.widget.RecyclerView>
+        <com.zu.sweetalbum.view.DownDragLoadView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"></com.zu.sweetalbum.view.DownDragLoadView>
+    </com.zu.sweetalbum.view.DragToLoadLayout>
+    
 </LinearLayout>
