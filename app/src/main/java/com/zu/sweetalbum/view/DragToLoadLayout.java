@@ -54,7 +54,15 @@ public class DragToLoadLayout extends FrameLayout{
                 }
             }else
             {
-                if(getChildAt(getChildCount() - 1).getBottom())
+                if(getChildAt(getChildCount() - 1).getBottom() + realMoveDis < visibleRect.bottom)
+                {
+                    realMoveDis = visibleRect.bottom - getChildAt(getChildCount() - 1).getBottom();
+                }
+                if(realMoveDis != 0)
+                {
+                    offsetChildrenVertical(realMoveDis);
+                    moved = true;
+                }
             }
             return false;
         }
@@ -127,6 +135,7 @@ public class DragToLoadLayout extends FrameLayout{
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+
         boolean consumed = super.dispatchTouchEvent(ev);
         log.d("dispatchTouchEvent returns " + consumed);
         return consumed;
