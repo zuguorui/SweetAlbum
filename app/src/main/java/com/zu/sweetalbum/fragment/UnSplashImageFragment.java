@@ -277,10 +277,14 @@ public class UnSplashImageFragment extends Fragment {
             public void onGlobalLayout() {
                 int width = recyclerView.getMeasuredWidth();
                 int height = recyclerView.getMeasuredHeight();
-                int childHeight = zoomLayoutManager.getChildHeight();
-                int childWidth = zoomLayoutManager.getChildWidth();
-                int cols = (width / childWidth ) + 1;
-                int rows = (height / childHeight) + 1;
+                float zoomLevel = zoomLayoutManager.getZoomLevel();
+//                int childHeight = zoomLayoutManager.getChildHeight();
+//                int childWidth = zoomLayoutManager.getChildWidth();
+//                int cols = width / childWidth + 1;
+//                int rows = height / childHeight + 1;
+                int cols = (int)zoomLevel + 1;
+                int rows = (int)((height * 1.0F / width) * zoomLevel + 1);
+
                 dataLength = 3 * cols * rows;
                 if(!UnSplashService.isServiceRunning())
                 {
@@ -300,13 +304,13 @@ public class UnSplashImageFragment extends Fragment {
 
 
 
-        upDragLoadView = new UpDragLoadView(getContext());
-        upDragLoadView.setOnDragListener(upDragListener);
-        downDragLoadView = new DownDragLoadView(getContext());
-        downDragLoadView.setOnDragListener(downDragListener);
-
-        zoomLayoutManager.setUpDragLoadView(upDragLoadView);
-        zoomLayoutManager.setDownDragLoadView(downDragLoadView);
+//        upDragLoadView = new UpDragLoadView(getContext());
+//        upDragLoadView.setOnDragListener(upDragListener);
+//        downDragLoadView = new DownDragLoadView(getContext());
+//        downDragLoadView.setOnDragListener(downDragListener);
+//
+//        zoomLayoutManager.setUpDragLoadView(upDragLoadView);
+//        zoomLayoutManager.setDownDragLoadView(downDragLoadView);
 
 
     }

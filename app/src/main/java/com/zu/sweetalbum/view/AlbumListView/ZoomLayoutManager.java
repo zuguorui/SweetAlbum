@@ -120,35 +120,37 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 
     private boolean isTouching = false;
 
-    private View.OnGenericMotionListener genericMotionListener = new View.OnGenericMotionListener() {
-        @Override
-        public boolean onGenericMotion(View v, MotionEvent event) {
-            log.d("OnGenericMotionListener ev achieve");
-            switch (event.getAction())
-            {
-                case MotionEvent.ACTION_DOWN:
-                    isTouching = true;
-                    break;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    isTouching = false;
-                    Rect visibleRect = getVisibleRect();
-                    if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
-                    {
-                        float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
-                        upDragLoadView.onDragRelease(process);
-                    }
+//    private View.OnGenericMotionListener genericMotionListener = new View.OnGenericMotionListener() {
+//        @Override
+//        public boolean onGenericMotion(View v, MotionEvent event) {
+//            log.d("OnGenericMotionListener ev achieve");
+//            switch (event.getAction())
+//            {
+//                case MotionEvent.ACTION_DOWN:
+//                    isTouching = true;
+//                    break;
+//                case MotionEvent.ACTION_UP:
+//                case MotionEvent.ACTION_CANCEL:
+//                    isTouching = false;
+//                    Rect visibleRect = getVisibleRect();
+//                    if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
+//                    {
+//                        float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
+//                        upDragLoadView.onDragRelease(process);
+//                    }
+//
+//                    if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() <= visibleRect.bottom)
+//                    {
+//                        float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
+//                        downDragLoadView.onDragRelease(process);
+//                    }
+//                    break;
+//            }
+//            return false;
+//        }
+//    };
 
-                    if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() <= visibleRect.bottom)
-                    {
-                        float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
-                        downDragLoadView.onDragRelease(process);
-                    }
-                    break;
-            }
-            return false;
-        }
-    };
+    private OnScrollStateListener onScrollStateListener;
 
     private OnItemClickListener onItemClickListener;
     private OnItemLongClickListener onItemLongClickListener;
@@ -211,11 +213,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    @Override
-    public void onAttachedToWindow(RecyclerView view) {
-        super.onAttachedToWindow(view);
-        view.setOnGenericMotionListener(genericMotionListener);
-    }
+
 
 
     public void setOnItemLongClickListener(OnItemLongClickListener listener)
@@ -260,6 +258,18 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    public void setOnScrollStateListener(OnScrollStateListener onScrollStateListener)
+    {
+        this.onScrollStateListener = onScrollStateListener;
+    }
+
+    public void removeOnScrollStateListener(OnScrollStateListener onScrollStateListener)
+    {
+        if(this.onScrollStateListener == onScrollStateListener)
+        {
+            this.onScrollStateListener = null;
+        }
+    }
 
     public ZoomLayoutManager(Context context, float zoomLevel, int maxZoomLevel, int minZoomLevel, ImageAdapter adapter)
     {
@@ -647,6 +657,11 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST);
             view.measure(widthSpec, heightSpec);
         }
+    }
+
+    public float getZoomLevel()
+    {
+        return mZoomLevel;
     }
 
     public ZoomOnTouchListener getZoomOnTouchListener()
@@ -1520,7 +1535,10 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 
         }
 
-
+        if(onScrollStateListener != null)
+        {
+            onScrollStateListener.onScrollState(-dy, realMoveY);
+        }
 
         scrolling = false;
         return -realMoveY;
@@ -2058,6 +2076,11 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             }
             return false;
         }
+    }
+
+    public interface OnScrollStateListener
+    {
+        boolean onScrollState(int originMoveDis, int movedDis);
     }
 
 
