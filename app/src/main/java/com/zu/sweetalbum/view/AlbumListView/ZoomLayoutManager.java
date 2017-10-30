@@ -1541,7 +1541,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         }
 
         scrolling = false;
-        return -realMoveY;
+        return dy;
     }
 
     @Override
