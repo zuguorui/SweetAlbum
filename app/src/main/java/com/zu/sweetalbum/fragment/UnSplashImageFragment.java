@@ -28,6 +28,7 @@ import com.zu.sweetalbum.view.AlbumListView.ImageNoGroupedAdapter;
 import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
 import com.zu.sweetalbum.view.CheckableView;
 import com.zu.sweetalbum.view.DownDragLoadView;
+import com.zu.sweetalbum.view.DragToLoadLayout;
 import com.zu.sweetalbum.view.UpDragLoadView;
 
 import java.io.File;
@@ -48,6 +49,8 @@ public class UnSplashImageFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ZoomLayoutManager zoomLayoutManager;
+
+    private DragToLoadLayout dragToLoadLayout;
 
     private LinkedList<PhotoBean> data = new LinkedList<>();
     private MyAdapter adapter;
@@ -133,55 +136,7 @@ public class UnSplashImageFragment extends Fragment {
         }
     };
 
-    private DragLoadView.OnDragListener upDragListener = new DragLoadView.OnDragListener() {
-        @Override
-        public void onDrag(float process) {
 
-        }
-
-        @Override
-        public void onDragRelease(float process) {
-            if(process > 0.7f)
-            {
-                upDragLoadView.onLoadStart();
-                data.clear();
-                acquireData(dataLength, true);
-            }else
-            {
-                upDragLoadView.onLoadCancel();
-            }
-
-        }
-
-        @Override
-        public void onDragStart() {
-
-        }
-    };
-
-    private DragLoadView.OnDragListener downDragListener = new DragLoadView.OnDragListener() {
-        @Override
-        public void onDrag(float process) {
-
-        }
-
-        @Override
-        public void onDragRelease(float process) {
-            if(process > 0.7f)
-            {
-                downDragLoadView.onLoadStart();
-                acquireData(dataLength, false);
-            }else
-            {
-                downDragLoadView.onLoadCancel();
-            }
-        }
-
-        @Override
-        public void onDragStart() {
-
-        }
-    };
 
     private Consumer errorConsumer = new Consumer() {
         @Override
@@ -272,6 +227,8 @@ public class UnSplashImageFragment extends Fragment {
         recyclerView.setLayoutManager(zoomLayoutManager);
         recyclerView.setAdapter(adapter);
 
+        dragToLoadLayout = (DragToLoadLayout)root.findViewById(R.id.UnSplashImageFragment_DragToLoadLayout);
+
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -301,6 +258,9 @@ public class UnSplashImageFragment extends Fragment {
                 recyclerView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });
+
+        zoomLayoutManager.setOnScrollStateListener(dragToLoadLayout.getOnScrollStateListener());
+
 
 
 

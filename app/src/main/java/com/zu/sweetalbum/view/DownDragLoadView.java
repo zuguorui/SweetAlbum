@@ -3,6 +3,8 @@ package com.zu.sweetalbum.view;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +23,21 @@ public class DownDragLoadView extends DragLoadView {
     private TextView textView;
     private ValueAnimator animator = null;
     public DownDragLoadView(@NonNull Context context) {
-        super(context);
+        this(context, null);
+
+
+    }
+
+    public DownDragLoadView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public DownDragLoadView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    public DownDragLoadView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         this.setLayoutParams(layoutParams);
         View view = LayoutInflater.from(context).inflate(R.layout.drag_load_view, null);
@@ -29,7 +45,6 @@ public class DownDragLoadView extends DragLoadView {
         imageView = (ImageView)view.findViewById(R.id.DragLoad_imageView);
         textView = (TextView)view.findViewById(R.id.DragLoad_textView);
         textView.setText("上拉加载更多");
-
     }
 
     @Override
