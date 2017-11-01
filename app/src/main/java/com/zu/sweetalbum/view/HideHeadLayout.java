@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import com.zu.sweetalbum.util.MyLog;
@@ -13,8 +14,8 @@ import com.zu.sweetalbum.util.MyLog;
  * Created by zu on 17-9-8.
  */
 
-public class HideHeadLayout extends LinearLayout{
-    private int touchSlop = 4;
+public class HideHeadLayout extends ViewGroup {
+    private int touchSlop = 2;
     private int oldX, oldY, newX, newY, dx, dy;
 
     private MyLog log = new MyLog("HideHeadLayout", true);
@@ -136,6 +137,42 @@ public class HideHeadLayout extends LinearLayout{
 
     }
 
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        if(changed)
+        {
+            int top = getPaddingTop();
+            int left = getPaddingLeft();
+            int right = getMeasuredWidth() - getPaddingRight();
+            for(int i = 0; i < getChildCount(); i++)
+            {
+                View view = getChildAt(i);
+                view.layout(left, top, right, top + view.getMeasuredHeight());
+                top += view.getMeasuredHeight();
+            }
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if(getChildCount() != 2)
+        {
+            throw new IllegalArgumentException("HideHeadLayout must have 2 views, the first is head, and the second as content");
+        }
+        View head = getChildAt(0);
+        int heightSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.AT_MOST);
+        int widthSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY);
+        head.measure(widthSpec, heightSpec);
+
+        View content = getChildAt(1);
+        heightSpec = MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(heightMeasureSpec), MeasureSpec.EXACTLY);
+        content.measure(widthSpec, heightSpec);
+
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
+
+
+    }
+
     private boolean scrollViewY(int dy)
     {
         boolean scrolled = false;
@@ -155,16 +192,20 @@ public class HideHeadLayout extends LinearLayout{
         }
         if(realDy == 0)
         {
-//            requestDisallowInterceptTouchEvent(true);
             return false;
         }
-        MarginLayoutParams layoutParams = (MarginLayoutParams) header.getLayoutParams();
-        layoutParams.topMargin += realDy;
-        header.setLayoutParams(layoutParams);
-//        header.offsetTopAndBottom(realDy);
-//        requestLayout();
+        offsetChildrenVertical(realDy);
+
         scrolled = true;
         return scrolled;
+    }
+
+    private void offsetChildrenVertical(int dy)
+    {
+        for(int i = 0; i < getChildCount(); i++)
+        {
+            getChildAt(i).offsetTopAndBottom(dy);
+        }
     }
 
 

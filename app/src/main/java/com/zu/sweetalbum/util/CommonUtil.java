@@ -89,7 +89,7 @@ public class CommonUtil {
     {
         ConnectivityManager connectivityManager = (ConnectivityManager) App.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo == null || networkInfo.isAvailable())
+        if(networkInfo == null || !networkInfo.isAvailable())
         {
             return NET_INVALID;
         }

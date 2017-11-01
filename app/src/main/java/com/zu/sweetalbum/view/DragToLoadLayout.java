@@ -29,6 +29,7 @@ public class DragToLoadLayout extends FrameLayout{
     private DragLoadView downDragLoadView;
 
     private boolean isOnTouch = false;
+    private boolean layouted = false;
 
     private DragLoadView.OnLoadListener upOnLoadListsner = new DragLoadView.OnLoadListener() {
         @Override
@@ -104,30 +105,33 @@ public class DragToLoadLayout extends FrameLayout{
 //            }
 
             Rect visibleRect = getVisibleRect();
-            if(originMoveDis > 0)
+            int offset = computeScrollOffset(originMoveDis);
+            if(offset > 0)
             {
 
-                if(getChildAt(0).getTop() + realMoveDis > visibleRect.top)
+                if(upDragLoadView.getTop() + offset > visibleRect.top)
                 {
-                    realMoveDis = visibleRect.top - getChildAt(0).getTop();
+                    offset = visibleRect.top - upDragLoadView.getTop();
                 }
-                if(realMoveDis != 0)
+                if(offset != 0)
                 {
-                    offsetChildrenVertical(realMoveDis);
+                    offsetChildrenVertical(offset);
                     notifyDragStat(false);
                     moved = true;
+                    log.d("onScrollState, move UpView, offset = " + offset);
                 }
             }else
             {
-                if(getChildAt(getChildCount() - 1).getBottom() + realMoveDis < visibleRect.bottom)
+                if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
                 {
-                    realMoveDis = visibleRect.bottom - getChildAt(getChildCount() - 1).getBottom();
+                    offset = visibleRect.bottom - downDragLoadView.getBottom();
                 }
-                if(realMoveDis != 0)
+                if(offset != 0)
                 {
-                    offsetChildrenVertical(realMoveDis);
+                    offsetChildrenVertical(offset);
                     notifyDragStat(false);
                     moved = true;
+                    log.d("onScrollState, move DownView, offset = " + offset);
                 }
             }
             return moved;
@@ -158,6 +162,9 @@ public class DragToLoadLayout extends FrameLayout{
 
     }
 
+    /**
+     * 仅负责根据UpView以及DownView的位置进行弹性滑动。
+     * */
     private int computeScrollOffset(int originDis)
     {
         Rect visibleRect = getVisibleRect();
@@ -171,9 +178,9 @@ public class DragToLoadLayout extends FrameLayout{
 
         if(upDragLoadView.getBottom() > visibleRect.top)
         {
-            int a = Math.abs(upDragLoadView.getBottom() - visibleRect.top);
+            int a = Math.abs(visibleRect.top - upDragLoadView.getTop());
             int height = upDragLoadView.getMeasuredHeight();
-            float process = a * 1.0f / height;
+            float process = a * 1.0f / height + 0.2f;
             if(process > 1.0f)
             {
                 process = 1.0f;
@@ -183,12 +190,17 @@ public class DragToLoadLayout extends FrameLayout{
             {
                 offset = visibleRect.top - upDragLoadView.getBottom();
             }
+            if(upDragLoadView.getTop() + offset > visibleRect.top)
+            {
+                offset = visibleRect.top - upDragLoadView.getTop();
+            }
             return offset;
+
         }else if(downDragLoadView.getTop() < visibleRect.bottom)
         {
-            int a = Math.abs(downDragLoadView.getTop() - visibleRect.bottom);
+            int a = Math.abs(visibleRect.bottom - downDragLoadView.getBottom());
             int height = downDragLoadView.getMeasuredHeight();
-            float process = a * 1.0f / height;
+            float process = a * 1.0f / height + 0.2f;
             if(process > 1.0f)
             {
                 process = 1.0f;
@@ -198,25 +210,16 @@ public class DragToLoadLayout extends FrameLayout{
             {
                 offset = visibleRect.bottom - downDragLoadView.getTop();
             }
+            if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
+            {
+                offset = visibleRect.bottom - downDragLoadView.getBottom();
+            }
             return offset;
         }
 
-        return 0;
+        return originDis;
     }
 
-    private boolean scrollChildren(int dis)
-    {
-        int offset = computeScrollOffset(dis);
-        if(offset != 0)
-        {
-            offsetChildrenVertical(offset);
-            notifyDragStat(false);
-            return true;
-        }else
-        {
-            return false;
-        }
-    }
 
     private void offsetChildrenVertical(int offset)
     {
@@ -264,6 +267,7 @@ public class DragToLoadLayout extends FrameLayout{
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if(changed)
         {
+
             int childCount = getChildCount();
             if(childCount != 3)
             {
@@ -274,16 +278,23 @@ public class DragToLoadLayout extends FrameLayout{
             {
                 throw new IllegalStateException("the first and last child view should be DragLoadView");
             }
-
-            upDragLoadView = (DragLoadView)getChildAt(0);
-            downDragLoadView = (DragLoadView)getChildAt(2);
-            upDragLoadView.setOnLoadListener(upOnLoadListsner);
-            downDragLoadView.setOnLoadListener(downOnLoadListener);
-
             Rect rect = getVisibleRect();
-            upDragLoadView.layout(rect.left, rect.top - upDragLoadView.getMeasuredHeight(), rect.right, rect.top);
-            downDragLoadView.layout(rect.left, rect.bottom, rect.right, rect.bottom + downDragLoadView.getMeasuredHeight());
-            getChildAt(1).layout(rect.left, rect.top, rect.right, rect.bottom);
+
+            if(upDragLoadView == null)
+            {
+                upDragLoadView = (DragLoadView)getChildAt(0);
+                upDragLoadView.setOnLoadListener(upOnLoadListsner);
+                upDragLoadView.layout(rect.left, rect.top - upDragLoadView.getMeasuredHeight(), rect.right, rect.top);
+                getChildAt(1).layout(rect.left, rect.top, rect.right, rect.bottom);
+            }
+            if(downDragLoadView == null)
+            {
+                downDragLoadView = (DragLoadView)getChildAt(2);
+                downDragLoadView.setOnLoadListener(downOnLoadListener);
+                downDragLoadView.layout(rect.left, rect.bottom, rect.right, rect.bottom + downDragLoadView.getMeasuredHeight());
+            }
+
+
         }
 
     }
@@ -304,48 +315,75 @@ public class DragToLoadLayout extends FrameLayout{
         return rect;
     }
 
-    private boolean detectScroll(int dis)
+    /**
+     * 决定是否拦截此事件并且对view进行滚动。当UpView或DownView有一个是可见的时候，根据滚动距离滚动并返回true，代表拦截此事件。
+     * 当UpView或DownView都不可见时返回false，代表不拦截此事件。此时会将事件交给RecyclerView。
+     * */
+    private boolean detectScrollWhenDrag(int dis)
     {
         int mDis = dis;
         Rect visibleRect = getVisibleRect();
         if(dis == 0)
         {
             return false;
-        }else if(dis > 0)
-        {
-            View foot = getChildAt(2);
-            if(foot.getTop() < visibleRect.bottom)
-            {
-                if(foot.getTop() + mDis > visibleRect.bottom)
-                {
-                    mDis = visibleRect.bottom - foot.getTop();
-                }
-                if(mDis != 0)
-                {
-                    offsetChildrenVertical(mDis);
-                    notifyDragStat(isOnTouch);
-                    return true;
-                }
-            }
-        }else
-        {
-            View head = getChildAt(0);
-            if(head.getBottom() > visibleRect.top)
-            {
-                if(head.getBottom() + mDis < visibleRect.top)
-                {
-                    mDis = visibleRect.top - head.getBottom();
-                }
-                if(mDis != 0)
-                {
-                    offsetChildrenVertical(mDis);
-                    notifyDragStat(isOnTouch);
-                    return true;
-                }
-            }
         }
 
-        return false;
+        if(upDragLoadView.getBottom() > visibleRect.top)
+        {
+            if(mDis > 0)
+            {
+                int offset = computeScrollOffset(mDis);
+                if(offset != 0)
+                {
+                    offsetChildrenVertical(offset);
+                    notifyDragStat(false);
+
+                }
+
+            }else
+            {
+                if(upDragLoadView.getBottom() + mDis < visibleRect.top)
+                {
+                    mDis = visibleRect.top - upDragLoadView.getBottom();
+                }
+                if(mDis != 0)
+                {
+                    offsetChildrenVertical(mDis);
+                    notifyDragStat(false);
+                }
+
+            }
+            return true;
+        }else if(downDragLoadView.getTop() < visibleRect.bottom)
+        {
+            if(mDis < 0)
+            {
+                int offset = computeScrollOffset(mDis);
+                if(offset != 0)
+                {
+                    offsetChildrenVertical(offset);
+                    notifyDragStat(false);
+
+                }
+            }else
+            {
+                if(downDragLoadView.getTop() + mDis > visibleRect.bottom)
+                {
+                    mDis = visibleRect.bottom - downDragLoadView.getTop();
+                }
+                if(mDis != 0)
+                {
+                    offsetChildrenVertical(mDis);
+                    notifyDragStat(false);
+                }
+
+            }
+            return true;
+        }else
+        {
+            return false;
+        }
+
     }
 
 
@@ -376,7 +414,8 @@ public class DragToLoadLayout extends FrameLayout{
                 int dy = newY - oldY;
                 if(Math.abs(dy) >= touchSlop)
                 {
-                    consumed = scrollChildren(dy);
+                    consumed = detectScrollWhenDrag(dy);
+                    log.d("detectScrollWhenDrag returns " + consumed);
                 }
                 break;
             case MotionEvent.ACTION_UP:

@@ -167,10 +167,10 @@ public class TextViewPagerIndicator extends ViewGroup
         {
             setMeasuredDimension(resultWidthSize > widthSize ? widthSize : resultWidthSize,
                     resultHeightSize > heightSize ? heightSize : resultHeightSize);
-        }else if(widthMeasureSpec == MeasureSpec.AT_MOST)
+        }else if(widthSpecMode == MeasureSpec.AT_MOST)
         {
             setMeasuredDimension(resultWidthSize > widthSize ? widthSize : resultWidthSize, heightSize);
-        }else if(heightMeasureSpec == MeasureSpec.AT_MOST)
+        }else if(heightSpecMode == MeasureSpec.AT_MOST)
         {
             setMeasuredDimension(widthSize, resultHeightSize > heightSize ? heightSize : resultHeightSize);
         }else

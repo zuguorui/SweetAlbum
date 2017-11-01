@@ -37,8 +37,6 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private ChildSizeHelper childSizeHelper = new ChildSizeHelper();
     private Context mContext = null;
 
-    private int downAddEdge = 10;
-    private int upAddEdge = -10;
 
     private ImageAdapter adapter = null;
     private float mZoomLevel = 2.0f;
@@ -82,18 +80,18 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private DragLoadView.OnLoadListener upOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-            animateUpDragView(getVisibleRect().top);
+
         }
 
         @Override
         public void onLoadStart() {
-            animateUpDragView(getVisibleRect().top + upDragLoadView.getMeasuredHeight());
+
         }
 
         @Override
         public void onLoadCancel() {
 
-            animateUpDragView(getVisibleRect().top);
+
 
         }
     };
@@ -101,17 +99,17 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private DragLoadView.OnLoadListener downOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-            animateDownDragView(getVisibleRect().bottom);
+
         }
 
         @Override
         public void onLoadStart() {
-            animateDownDragView(getVisibleRect().bottom - downDragLoadView.getMeasuredHeight());
+
         }
 
         @Override
         public void onLoadCancel() {
-            animateDownDragView(getVisibleRect().bottom);
+
         }
     };
 
@@ -173,45 +171,9 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    private void animateUpDragView(int targetBottom)
-    {
-        stopUpDragViewAnimator();
-
-        upDragViewLayoutAnimator = ValueAnimator.ofInt(upDragLoadView.getBottom(), targetBottom);
-        upDragViewLayoutAnimator.setDuration(500);
-        upDragViewLayoutAnimator.addUpdateListener(upDragViewLayoutAnimatorListener);
-        upDragViewLayoutAnimator.start();
-    }
-
-    private void stopUpDragViewAnimator()
-    {
-        if(upDragViewLayoutAnimator != null)
-        {
-            upDragViewLayoutAnimator.cancel();
-            upDragViewLayoutAnimator = null;
-        }
-    }
-
-    private void animateDownDragView(int targetTop)
-    {
-        stopDownDragViewAnimator();
-
-        downDragViewLayoutAnimator = ValueAnimator.ofInt(downDragLoadView.getTop(), targetTop);
-        downDragViewLayoutAnimator.setDuration(500);
-        downDragViewLayoutAnimator.addUpdateListener(downDragViewLayoutAnimatorListener);
-        downDragViewLayoutAnimator.start();
 
 
-    }
 
-    private void stopDownDragViewAnimator()
-    {
-        if(downDragViewLayoutAnimator != null)
-        {
-            downDragViewLayoutAnimator.cancel();
-            downDragViewLayoutAnimator = null;
-        }
-    }
 
 
 
@@ -319,78 +281,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         return layoutParams;
     }
 
-    public void setUpDragLoadView(DragLoadView upDragLoadView)
-    {
-        this.upDragLoadView = upDragLoadView;
-        this.upDragLoadView.setOnLoadListener(upOnLoadListener);
-        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(getVisibleRect().width(), View.MeasureSpec.AT_MOST);
-        upDragLoadView.measure(widthSpec, heightSpec);
-        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(upDragLoadView.getLayoutParams());
-        upDragLoadView.setLayoutParams(layoutParams);
-        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(upDragLoadView){
 
-        };
-        try{
-            Class layoutParamsClass = (Class)layoutParams.getClass();
-            Field[] fields = layoutParamsClass.getDeclaredFields();
-            for(Field f : fields)
-            {
-                if(f.getName().equals("mViewHolder"))
-                {
-                    f.setAccessible(true);
-                    f.set(layoutParams, viewHolder);
-                    break;
-                }
-            }
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void setDownDragLoadView(DragLoadView downDragLoadView)
-    {
-        this.downDragLoadView = downDragLoadView;
-        this.downDragLoadView.setOnLoadListener(downOnLoadListener);
-        int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-        int widthSpec = View.MeasureSpec.makeMeasureSpec(getVisibleRect().width(), View.MeasureSpec.AT_MOST);
-        downDragLoadView.measure(widthSpec, heightSpec);
-        RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(downDragLoadView.getLayoutParams());
-        downDragLoadView.setLayoutParams(layoutParams);
-        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(downDragLoadView) {
-
-        };
-        try{
-            Class layoutParamsClass = (Class) layoutParams.getClass();
-            Field[] fields = layoutParamsClass.getDeclaredFields();
-            for(Field f : fields)
-            {
-                if(f.getName().equals("mViewHolder"))
-                {
-                    f.setAccessible(true);
-                    f.set(layoutParams, viewHolder);
-                    break;
-                }
-            }
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void removeUpDragLoadView()
-    {
-        upDragLoadView.removeOnLoadListener();
-        upDragLoadView = null;
-    }
-
-    public void removeDownDragLoadView()
-    {
-        downDragLoadView.removeOnLoadListener();
-        downDragLoadView = null;
-    }
 
 
 
@@ -1476,7 +1367,15 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
 
         if(getItemCount() <= 0 || state.isPreLayout() || realMoveY == 0)
         {
-            return 0;
+
+            if(onScrollStateListener != null)
+            {
+                onScrollStateListener.onScrollState(-dy, 0);
+                return dy;
+            }else
+            {
+                return 0;
+            }
         }
 
         Rect visibleRect = getVisibleRect();
@@ -1492,6 +1391,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         {
             if(getPosition(last) == getItemCount() - 1)
             {
+
                 if(getDecoratedBottom(last) + realMoveY < visibleRect.bottom)
                 {
                     realMoveY = visibleRect.bottom - getDecoratedBottom(last);
@@ -1534,10 +1434,9 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             }
 
         }
-
         if(onScrollStateListener != null)
         {
-            onScrollStateListener.onScrollState(-dy, realMoveY);
+            onScrollStateListener .onScrollState(-dy, realMoveY);
         }
 
         scrolling = false;

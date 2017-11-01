@@ -25,4 +25,12 @@ public abstract class ImageAdapter extends RecyclerView.Adapter {
     public abstract int getChildIndex(long id);
     public abstract int getChildCount(int groupIndex);
     public abstract Object getItem(int position);
+    public boolean upDragToLoad(){
+        return false;
+    }
+
+    public boolean downDragToLoad()
+    {
+        return false;
+    }
 }

@@ -519,7 +519,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     dailyWallpaperPath = path;
                     return dailyWallpaperPath;
                 }
-
+                if(CommonUtil.getNetState() == CommonUtil.NET_INVALID)
+                {
+                    return "";
+                }
                 URL url = new URL(getString(R.string.bing_img_high_url));
                 HttpURLConnection connection = (HttpURLConnection)url.openConnection();
                 connection.setRequestMethod("GET");
