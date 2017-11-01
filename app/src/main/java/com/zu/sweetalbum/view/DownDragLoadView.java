@@ -49,7 +49,7 @@ public class DownDragLoadView extends DragLoadView {
 
     @Override
     public void onDrag(float process) {
-        imageView.setRotation(process);
+        imageView.setRotation(process * 360);
         super.onDrag(process);
     }
 

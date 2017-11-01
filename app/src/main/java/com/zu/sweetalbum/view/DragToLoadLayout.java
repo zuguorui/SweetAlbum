@@ -77,7 +77,7 @@ public class DragToLoadLayout extends FrameLayout{
 
 
     private int oldX, oldY, newX, newY;
-    private int touchSlop = 3;
+    private int touchSlop = 1;
 
     private ZoomLayoutManager.OnScrollStateListener onScrollStateListener = new ZoomLayoutManager.OnScrollStateListener() {
         /*此处由ZoomLayoutManager负责通知滑动。如果RecyclerView已经不能消耗滑动事件，那么就会由此处接受，然后视情况对View进行布局。此处触发时
@@ -105,7 +105,7 @@ public class DragToLoadLayout extends FrameLayout{
 //            }
 
             Rect visibleRect = getVisibleRect();
-            int offset = computeScrollOffset(originMoveDis);
+            int offset = computeScrollOffset(originMoveDis, -0.2f);
             if(offset > 0)
             {
 
@@ -164,8 +164,9 @@ public class DragToLoadLayout extends FrameLayout{
 
     /**
      * 仅负责根据UpView以及DownView的位置进行弹性滑动。
+     * 需要限制每次最大滑动不得超过UpView或者DownView的高度。
      * */
-    private int computeScrollOffset(int originDis)
+    private int computeScrollOffset(int originDis, float adjust)
     {
         Rect visibleRect = getVisibleRect();
         int mOffset = originDis;
@@ -180,41 +181,72 @@ public class DragToLoadLayout extends FrameLayout{
         {
             int a = Math.abs(visibleRect.top - upDragLoadView.getTop());
             int height = upDragLoadView.getMeasuredHeight();
-            float process = a * 1.0f / height + 0.2f;
-            if(process > 1.0f)
+            if(mOffset > 0)
             {
-                process = 1.0f;
-            }
-            int offset = (int)(process * mOffset);
-            if(upDragLoadView.getBottom() + offset < visibleRect.top)
+                if(mOffset > height)
+                {
+                    mOffset = height;
+                }
+                float process = a * 1.0f / height + adjust;
+                if(process > 1.0f)
+                {
+                    process = 1.0f;
+                }
+                if(process < 0f)
+                {
+                    process = 0f;
+                }
+                int offset = (int)(process * mOffset);
+                if(upDragLoadView.getBottom() + offset < visibleRect.top)
+                {
+                    offset = visibleRect.top - upDragLoadView.getBottom();
+                }
+                if(upDragLoadView.getTop() + offset > visibleRect.top)
+                {
+                    offset = visibleRect.top - upDragLoadView.getTop();
+                }
+                return offset;
+            }else
             {
-                offset = visibleRect.top - upDragLoadView.getBottom();
+                return mOffset;
             }
-            if(upDragLoadView.getTop() + offset > visibleRect.top)
-            {
-                offset = visibleRect.top - upDragLoadView.getTop();
-            }
-            return offset;
+
 
         }else if(downDragLoadView.getTop() < visibleRect.bottom)
         {
             int a = Math.abs(visibleRect.bottom - downDragLoadView.getBottom());
             int height = downDragLoadView.getMeasuredHeight();
-            float process = a * 1.0f / height + 0.2f;
-            if(process > 1.0f)
+            if(mOffset < 0)
             {
-                process = 1.0f;
-            }
-            int offset = (int)(process * mOffset);
-            if(downDragLoadView.getTop() + offset > visibleRect.bottom)
+                if(-mOffset > height)
+                {
+                    mOffset = -height;
+                }
+                float process = a * 1.0f / height + adjust;
+                if(process > 1.0f)
+                {
+                    process = 1.0f;
+                }
+                if(process < 0f)
+                {
+                    process = 0f;
+                }
+                int offset = (int)(process * mOffset);
+                if(downDragLoadView.getTop() + offset > visibleRect.bottom)
+                {
+                    offset = visibleRect.bottom - downDragLoadView.getTop();
+                }
+                if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
+                {
+                    offset = visibleRect.bottom - downDragLoadView.getBottom();
+                }
+                return offset;
+            }else
             {
-                offset = visibleRect.bottom - downDragLoadView.getTop();
+                int upHeight = upDragLoadView.getMeasuredHeight();
+                return mOffset;
             }
-            if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
-            {
-                offset = visibleRect.bottom - downDragLoadView.getBottom();
-            }
-            return offset;
+
         }
 
         return originDis;
@@ -259,6 +291,7 @@ public class DragToLoadLayout extends FrameLayout{
             {
                 downDragLoadView.onDrag(process);
             }
+
         }
     }
 
@@ -332,7 +365,7 @@ public class DragToLoadLayout extends FrameLayout{
         {
             if(mDis > 0)
             {
-                int offset = computeScrollOffset(mDis);
+                int offset = computeScrollOffset(mDis, 0f);
                 if(offset != 0)
                 {
                     offsetChildrenVertical(offset);
@@ -358,7 +391,7 @@ public class DragToLoadLayout extends FrameLayout{
         {
             if(mDis < 0)
             {
-                int offset = computeScrollOffset(mDis);
+                int offset = computeScrollOffset(mDis, 0f);
                 if(offset != 0)
                 {
                     offsetChildrenVertical(offset);

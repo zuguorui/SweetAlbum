@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zu.sweetalbum.R;
+import com.zu.sweetalbum.util.MyLog;
 import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
 
 /**
@@ -22,6 +23,7 @@ public class UpDragLoadView extends DragLoadView {
     private ImageView imageView;
     private TextView textView;
     private ValueAnimator animator = null;
+    MyLog log = new MyLog("UpDragLoadView", true);
     public UpDragLoadView(@NonNull Context context) {
         this(context, null);
 
@@ -49,7 +51,8 @@ public class UpDragLoadView extends DragLoadView {
 
     @Override
     public void onDrag(float process) {
-        imageView.setRotation(process);
+        imageView.setRotation(process * 360);
+        log.d("onDrag, process = " + process);
         super.onDrag(process);
     }
 
