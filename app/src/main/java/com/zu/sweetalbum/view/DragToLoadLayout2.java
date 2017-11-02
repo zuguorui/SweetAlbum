@@ -8,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v4.view.NestedScrollingChild;
+import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
+import android.support.v4.view.NestedScrollingParentHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -66,7 +68,8 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
         }
     };
 
-    private ValueAnimator animator;
+
+    private ValueAnimator offsetAnimator =null;
 
     private ValueAnimator.AnimatorUpdateListener animatorUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
         @Override
@@ -97,14 +100,6 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
                 return false;
             }
 
-
-//            int offset = computeScrollOffset(realMoveDis);
-//            if(offset != 0)
-//            {
-//                offsetChildrenVertical(offset);
-//                notifyDragStat(false);
-//                moved = true;
-//            }
 
             Rect visibleRect = getVisibleRect();
             int offset = computeScrollOffset(originMoveDis, -0.2f);
@@ -145,6 +140,9 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
         return onScrollStateListener;
     }
 
+    private final NestedScrollingParentHelper mParentHelper;
+    private final NestedScrollingChildHelper mChildHelper;
+
 
     public DragToLoadLayout2(@NonNull Context context) {
         this(context, null);
@@ -161,6 +159,9 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
 
     public DragToLoadLayout2(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        mParentHelper = new NestedScrollingParentHelper(this);
+        mChildHelper = new NestedScrollingChildHelper(this);
+        mChildHelper.setNestedScrollingEnabled(true);
 
     }
 
@@ -325,6 +326,7 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
             {
                 content = getChildAt(1);
                 content.layout(rect.left, rect.top, rect.right, rect.bottom);
+
             }
             if(downDragLoadView == null)
             {
@@ -332,8 +334,6 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
                 downDragLoadView.setOnLoadListener(downOnLoadListener);
                 downDragLoadView.layout(rect.left, rect.bottom, rect.right, rect.bottom + downDragLoadView.getMeasuredHeight());
             }
-
-
         }
 
     }
@@ -429,6 +429,8 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
     private int originDownY;
     private boolean isDragging = false;
     private int activePointerId = INVALID_POINTER;
+    private boolean mRefreshing = false;
+
 
     private boolean canContentScrollUp()
     {
@@ -492,8 +494,6 @@ public class DragToLoadLayout2 extends FrameLayout implements NestedScrollingChi
         return consumed;
     }
 
-    @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        return super.onNestedPreFling(target, velocityX, velocityY);
-    }
+
+
 }
