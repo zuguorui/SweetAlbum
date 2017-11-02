@@ -1118,240 +1118,48 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         animator.start();
     }
 
+    public int getFirstVisibleItemPosition()
+    {
+        if(getChildCount() == 0)
+        {
+            return 0;
+        }
+        return getPosition(getChildAt(0));
+    }
+
+    public int getLastVisibleItemPosition()
+    {
+        if(getChildCount() == 0)
+        {
+            return 0;
+        }
+        return getPosition(getChildAt(getChildCount() - 1));
+    }
+
     @Override
     public boolean canScrollVertically() {
         return true;
     }
 
-//    @Override
-//    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-//        scrolling = true;
-//        if(dy == 0)
-//        {
-//            return 0;
-//        }
-////        log.d("scrollVerticallyBy, dy = " + dy);
-////        log.d("scrap children = " + getChildCount());
-//        int realMoveY =  - dy;
-//        if(upDragLoadView != null || downDragLoadView != null)
-//        {
-//            Rect visibleRect = getVisibleRect();
-//
-//            if(realMoveY > 0)
-//            {
-//                if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() < visibleRect.bottom )
-//                {
-//                    int offset = realMoveY;
-//                    if(offset + downDragLoadView.getTop()> visibleRect.bottom )
-//                    {
-//                        offset = visibleRect.bottom - downDragLoadView.getTop();
-//
-//                    }
-//
-//                    downDragLoadView.offsetTopAndBottom(offset);
-//                    float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
-//                    downDragLoadView.onDrag(process);
-//                    realMoveY -= offset;
-//
-//
-//                    if(downDragLoadView.getTop() > visibleRect.bottom)
-//                    {
-//                        removeView(downDragLoadView);
-//                    }
-//
-//                }else if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() >= visibleRect.top)
-//                {
-//                    int dis = Math.abs(upDragLoadView.getTop() - visibleRect.top);
-//                    float a = dis * 1.0f / upDragLoadView.getMeasuredHeight();
-////                    if(a > 1.0f)
-////                    {
-////                        a = 1.0f;
-////                    }
-//                    int offset = (int)(realMoveY * a) + 10;
-//                    if(offset > realMoveY)
-//                    {
-//                        offset = realMoveY;
-//                    }
-//                    if(offset + upDragLoadView.getTop() > visibleRect.top)
-//                    {
-//                        offset = visibleRect.top - upDragLoadView.getTop();
-//                    }
-//
-//                    if(offset != 0)
-//                    {
-//                        upDragLoadView.offsetTopAndBottom(offset);
-//                        float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
-//                        upDragLoadView.onDrag(process);
-//
-//                    }
-//                    return realMoveY - offset;
-//
-//                }
-//            }else
-//            {
-//                if(upDragLoadView != null && upDragLoadView.getParent() != null && upDragLoadView.getBottom() > visibleRect.top)
-//                {
-//                    int offset = realMoveY;
-//                    if(offset < visibleRect.top - upDragLoadView.getBottom())
-//                    {
-//                        offset = visibleRect.top - upDragLoadView.getBottom();
-//                    }
-//                    upDragLoadView.offsetTopAndBottom(offset);
-//                    float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
-//                    upDragLoadView.onDrag(process);
-//                    realMoveY -= offset;
-//
-//                    if(upDragLoadView.getBottom() < visibleRect.top)
-//                    {
-//                        removeView(upDragLoadView);
-//                    }
-//                }else if(downDragLoadView != null && downDragLoadView.getParent() != null && downDragLoadView.getTop() < visibleRect.bottom)
-//                {
-//                    int dis = visibleRect.bottom - downDragLoadView.getBottom();
-//                    float a = dis * 1.0f / downDragLoadView.getMeasuredHeight();
-//
-//                    int offset = (int)(a * downDragLoadView.getMeasuredHeight());
-//
-//                    if(offset < realMoveY)
-//                    {
-//                        offset = realMoveY;
-//                    }
-//
-//                    if(offset + downDragLoadView.getBottom() < visibleRect.bottom)
-//                    {
-//                        offset = visibleRect.bottom - downDragLoadView.getBottom();
-//                    }
-//
-//                    if(offset != 0)
-//                    {
-//                        downDragLoadView.offsetTopAndBottom(offset);
-//                        float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
-//                        downDragLoadView.onDrag(process);
-//                    }
-//                    return realMoveY - offset;
-//
-//                }
-//            }
-//        }
-//
-//        if(getItemCount() <= 0 || state.isPreLayout() || realMoveY == 0)
-//        {
-//            return 0;
-//        }
-//
-//        Rect visibleRect = getVisibleRect();
-//        View last = getChildAt(getChildCount() - 1);
-//        View first = getChildAt(0);
-//
-//        int contentOffset = realMoveY;
-//
-//        if(last == null || first == null)
-//        {
-////            realMoveY = 0;
-//        }else
-//        {
-//            if(getPosition(last) == getItemCount() - 1)
-//            {
-//                if(getDecoratedBottom(last) + contentOffset < visibleRect.bottom)
-//                {
-//                    contentOffset = visibleRect.bottom - getDecoratedBottom(last);
-//                }
-//            }
-//
-//            if(getPosition(first) == 0)
-//            {
-//                if(getDecoratedTop(first) + contentOffset > visibleRect.top)
-//                {
-//                    contentOffset = visibleRect.top - getDecoratedTop(first);
-//                }
-//            }
-//        }
-//
-//        realMoveY -= contentOffset;
-//
-//        if(contentOffset != 0)
-//        {
-//            offsetChildrenVertical(contentOffset);
-////            checkAndRemoveChild(0, recycler);
-//            if(contentOffset > 0)
-//            {
-//                first = getChildAt(0);
-//                int offset = getDecoratedTop(first);
-//                int position = getPosition(first);
-//                fillUpWhenScroll(recycler);
-//                removeChildrenFromBottom(recycler);
-////                fillUp(position, offset, recycler);
-//
-//            }else
-//            {
-//                last = getChildAt(getChildCount() - 1);
-//                int offset = getDecoratedTop(last);
-//                int position = getPosition(last);
-//                fillDownWhenScroll(recycler);
-//                removeChildrenFromTop(recycler);
-////                fillDown(position, offset, recycler);
-//
-//            }
-//
-//        }
-//
-//        if(isTouching && realMoveY != 0)
-//        {
-//            if(realMoveY > 0)
-//            {
-//                if(upDragLoadView != null)
-//                {
-//                    if(upDragLoadView.getParent() == null)
-//                    {
-//                        layoutDecorated(upDragLoadView, visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
-//                                visibleRect.right, visibleRect.top);
-////                        upDragLoadView.layout(visibleRect.left, visibleRect.top - upDragLoadView.getMeasuredHeight(),
-////                                visibleRect.right, visibleRect.top);
-//
-//                        addView(upDragLoadView, 0);
-//                        upDragLoadView.onDragStart();
-//
-//                    }
-//
-//                    int offset = realMoveY;
-//                    if(offset + upDragLoadView.getTop() > visibleRect.top)
-//                    {
-//                        offset = visibleRect.top - upDragLoadView.getTop();
-//                    }
-//                    upDragLoadView.offsetTopAndBottom(offset);
-//                    float process = Math.abs(upDragLoadView.getBottom() - visibleRect.top) * 1.0f / upDragLoadView.getMeasuredHeight();
-//                    upDragLoadView.onDrag(process);
-//                    realMoveY -= offset;
-//                }
-//
-//            }else
-//            {
-//                if(downDragLoadView != null)
-//                {
-//                    if(downDragLoadView.getParent() == null)
-//                    {
-//                        layoutDecorated(downDragLoadView, visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
-//                        addView(downDragLoadView);
-////                        downDragLoadView.layout(visibleRect.left, visibleRect.bottom, visibleRect.right, visibleRect.bottom + downDragLoadView.getMeasuredHeight());
-////                        addView(downDragLoadView);
-//                        downDragLoadView.onDragStart();
-//                    }
-//                    int offset = realMoveY;
-//                    if(offset + downDragLoadView.getBottom() < visibleRect.bottom)
-//                    {
-//                        offset = visibleRect.bottom - downDragLoadView.getBottom();
-//                    }
-//                    downDragLoadView.offsetTopAndBottom(offset);
-//                    float process = Math.abs(downDragLoadView.getTop() - visibleRect.bottom) * 1.0f / downDragLoadView.getMeasuredHeight();
-//                    downDragLoadView.onDrag(process);
-//                    realMoveY -= offset;
-//                }
-//            }
-//        }
-//
-//        scrolling = false;
-//        return dy;
-//    }
+    @Override
+    public int computeVerticalScrollOffset(RecyclerView.State state) {
+
+        return getFirstVisibleItemPosition();
+    }
+
+    @Override
+    public int computeVerticalScrollExtent(RecyclerView.State state) {
+        int first = getFirstVisibleItemPosition();
+        int last = getLastVisibleItemPosition();
+
+        return last - first;
+    }
+
+    @Override
+    public int computeVerticalScrollRange(RecyclerView.State state) {
+
+        return getItemCount();
+    }
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
@@ -1368,14 +1176,7 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
         if(getItemCount() <= 0 || state.isPreLayout() || realMoveY == 0)
         {
 
-            if(onScrollStateListener != null)
-            {
-                onScrollStateListener.onScrollState(-dy, 0);
-                return dy;
-            }else
-            {
-                return 0;
-            }
+            return 0;
         }
 
         Rect visibleRect = getVisibleRect();
@@ -1434,14 +1235,100 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             }
 
         }
-        if(onScrollStateListener != null)
-        {
-            onScrollStateListener .onScrollState(-dy, realMoveY);
-        }
 
         scrolling = false;
-        return dy;
+        return -realMoveY;
     }
+
+//    @Override
+//    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+//        scrolling = true;
+//        if(dy == 0)
+//        {
+//            return 0;
+//        }
+////        log.d("scrollVerticallyBy, dy = " + dy);
+////        log.d("scrap children = " + getChildCount());
+//        int realMoveY =  - dy;
+//
+//
+//        if(getItemCount() <= 0 || state.isPreLayout() || realMoveY == 0)
+//        {
+//
+//            if(onScrollStateListener != null)
+//            {
+//                onScrollStateListener.onScrollState(-dy, 0);
+//                return dy;
+//            }else
+//            {
+//                return 0;
+//            }
+//        }
+//
+//        Rect visibleRect = getVisibleRect();
+//        View last = getChildAt(getChildCount() - 1);
+//        View first = getChildAt(0);
+//
+//
+//
+//        if(last == null || first == null)
+//        {
+//            realMoveY = 0;
+//        }else
+//        {
+//            if(getPosition(last) == getItemCount() - 1)
+//            {
+//
+//                if(getDecoratedBottom(last) + realMoveY < visibleRect.bottom)
+//                {
+//                    realMoveY = visibleRect.bottom - getDecoratedBottom(last);
+//                }
+//            }
+//
+//            if(getPosition(first) == 0)
+//            {
+//                if(getDecoratedTop(first) + realMoveY > visibleRect.top)
+//                {
+//                    realMoveY = visibleRect.top - getDecoratedTop(first);
+//                }
+//            }
+//        }
+//
+//
+//
+//        if(realMoveY != 0)
+//        {
+//            offsetChildrenVertical(realMoveY);
+////            checkAndRemoveChild(0, recycler);
+//            if(realMoveY > 0)
+//            {
+//                first = getChildAt(0);
+//                int offset = getDecoratedTop(first);
+//                int position = getPosition(first);
+//                fillUpWhenScroll(recycler);
+//                removeChildrenFromBottom(recycler);
+////                fillUp(position, offset, recycler);
+//
+//            }else
+//            {
+//                last = getChildAt(getChildCount() - 1);
+//                int offset = getDecoratedTop(last);
+//                int position = getPosition(last);
+//                fillDownWhenScroll(recycler);
+//                removeChildrenFromTop(recycler);
+////                fillDown(position, offset, recycler);
+//
+//            }
+//
+//        }
+//        if(onScrollStateListener != null)
+//        {
+//            onScrollStateListener .onScrollState(-dy, realMoveY);
+//        }
+//
+//        scrolling = false;
+//        return dy;
+//    }
 
     @Override
     public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state, LayoutPrefetchRegistry layoutPrefetchRegistry) {
@@ -1538,6 +1425,8 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
             return false;
         }
     }
+
+
 
     private View getAndSetViewForPosition(RecyclerView.Recycler recycler, int position)
     {
