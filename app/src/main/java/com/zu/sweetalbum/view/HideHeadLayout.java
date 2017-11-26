@@ -10,7 +10,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
 
 import com.zu.sweetalbum.util.MyLog;
@@ -117,6 +119,7 @@ public class HideHeadLayout extends ViewGroup implements NestedScrollingParent, 
                 view.layout(left, top, right, top + view.getMeasuredHeight());
                 top += view.getMeasuredHeight();
             }
+
         }
     }
 
@@ -173,6 +176,7 @@ public class HideHeadLayout extends ViewGroup implements NestedScrollingParent, 
         {
             getChildAt(i).offsetTopAndBottom(dy);
         }
+
     }
 
     /*NestedScrollingChild APIs*/

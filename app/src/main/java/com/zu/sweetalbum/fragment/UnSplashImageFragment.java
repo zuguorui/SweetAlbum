@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -260,7 +261,7 @@ public class UnSplashImageFragment extends Fragment {
             }
         });
         recyclerView.canScrollVertically(1);
-
+        ScrollView
 
 
         zoomLayoutManager.setOnScrollStateListener(dragToLoadLayout.getOnScrollStateListener());
