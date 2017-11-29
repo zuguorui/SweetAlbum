@@ -261,7 +261,6 @@ public class UnSplashImageFragment extends Fragment {
             }
         });
         recyclerView.canScrollVertically(1);
-        ScrollView
 
 
         zoomLayoutManager.setOnScrollStateListener(dragToLoadLayout.getOnScrollStateListener());
