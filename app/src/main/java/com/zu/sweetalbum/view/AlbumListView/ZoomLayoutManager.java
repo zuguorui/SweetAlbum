@@ -52,66 +52,10 @@ public class ZoomLayoutManager extends RecyclerView.LayoutManager {
     private RecyclerView.Recycler mRecycler = null;
     private ZoomOnTouchListener zoomOnTouchListener = null;
 
-    private DragLoadView upDragLoadView;
-    private DragLoadView downDragLoadView;
-
-    private ValueAnimator upDragViewLayoutAnimator;
-    private ValueAnimator downDragViewLayoutAnimator;
-
-    private ValueAnimator.AnimatorUpdateListener upDragViewLayoutAnimatorListener = new ValueAnimator.AnimatorUpdateListener() {
-        //注意，此处的值为upDragView的bottom值，在初始化动画时要注意
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            int value = (int)animation.getAnimatedValue();
-            layoutDecorated(upDragLoadView, upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
-//            upDragLoadView.layout(upDragLoadView.getLeft(), value - upDragLoadView.getMeasuredHeight(), upDragLoadView.getRight(), value);
-        }
-    };
-
-    private ValueAnimator.AnimatorUpdateListener downDragViewLayoutAnimatorListener = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            int value = (int)animation.getAnimatedValue();
-            layoutDecorated(downDragLoadView, downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
-//            downDragLoadView.layout(downDragLoadView.getLeft(), value, downDragLoadView.getRight(), value + downDragLoadView.getMeasuredHeight());
-        }
-    };
-
-    private DragLoadView.OnLoadListener upOnLoadListener = new DragLoadView.OnLoadListener() {
-        @Override
-        public void onLoadComplete(boolean success) {
-
-        }
-
-        @Override
-        public void onLoadStart() {
-
-        }
-
-        @Override
-        public void onLoadCancel() {
 
 
 
-        }
-    };
 
-    private DragLoadView.OnLoadListener downOnLoadListener = new DragLoadView.OnLoadListener() {
-        @Override
-        public void onLoadComplete(boolean success) {
-
-        }
-
-        @Override
-        public void onLoadStart() {
-
-        }
-
-        @Override
-        public void onLoadCancel() {
-
-        }
-    };
 
     private boolean scrolling = false;
     private boolean zooming = false;

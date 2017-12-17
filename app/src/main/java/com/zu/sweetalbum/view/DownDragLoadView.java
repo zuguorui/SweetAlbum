@@ -12,7 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zu.sweetalbum.R;
-import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
+import com.zu.sweetalbum.util.MyLog;
+
 
 /**
  * Created by zu on 2017/10/8.
@@ -22,6 +23,8 @@ public class DownDragLoadView extends DragLoadView {
     private ImageView imageView;
     private TextView textView;
     private ValueAnimator animator = null;
+
+    private MyLog log = new MyLog("DownDragLoadView", true);
     public DownDragLoadView(@NonNull Context context) {
         this(context, null);
 
@@ -48,26 +51,27 @@ public class DownDragLoadView extends DragLoadView {
     }
 
     @Override
-    public void onDrag(float process) {
+    public void drag(float process) {
+        log.d("onDrag, process = " + process);
         imageView.setRotation(process * 360);
-        super.onDrag(process);
+        super.drag(process);
     }
 
     @Override
-    public void onDragRelease(float process) {
-        super.onDragRelease(process);
+    public void dragRelease(float process) {
+        super.dragRelease(process);
     }
 
     @Override
-    public void onDragStart() {
-        super.onDragStart();
+    public void dragStart() {
+        super.dragStart();
     }
 
 
     @Override
-    public void onLoadComplete(boolean success) {
-        super.onLoadComplete(success);
-        animator.resume();
+    public void loadComplete(boolean success) {
+        super.loadComplete(success);
+        animator.end();
         if(success)
         {
             textView.setText("加载完成");
@@ -78,9 +82,9 @@ public class DownDragLoadView extends DragLoadView {
     }
 
     @Override
-    public void onLoadStart() {
+    public void loadStart() {
 
-        super.onLoadStart();
+        super.loadStart();
         if(animator == null)
         {
             animator = ValueAnimator.ofFloat(0f, 360f);
@@ -98,7 +102,14 @@ public class DownDragLoadView extends DragLoadView {
         }
         animator.start();
         textView.setText("正在加载");
+    }
 
-
+    @Override
+    public void viewHidden() {
+        if(animator != null)
+        {
+            animator.end();
+        }
+        textView.setText("上拉加载更多");
     }
 }

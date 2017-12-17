@@ -1,12 +1,9 @@
-package com.zu.sweetalbum.view.AlbumListView;
+package com.zu.sweetalbum.view;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
@@ -17,6 +14,7 @@ public abstract class DragLoadView extends FrameLayout {
 
     private OnLoadListener onLoadListener = null;
     private OnDragListener onDragListener = null;
+
 
     public DragLoadView(@NonNull Context context) {
         this(context, null);
@@ -55,14 +53,14 @@ public abstract class DragLoadView extends FrameLayout {
         this.onDragListener = null;
     }
 
-    public void onDrag(float process){
+    public void drag(float process){
         if(onDragListener != null)
         {
             onDragListener.onDrag(process);
         }
     }
 
-    public void onDragRelease(float process)
+    public void dragRelease(float process)
     {
         if(onDragListener != null)
         {
@@ -70,7 +68,7 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onDragStart()
+    public void dragStart()
     {
         if(onDragListener != null)
         {
@@ -78,7 +76,7 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onLoadComplete(boolean success)
+    public void loadComplete(boolean success)
     {
         if(onLoadListener != null)
         {
@@ -86,7 +84,7 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onLoadStart()
+    public void loadStart()
     {
         if(onLoadListener != null)
         {
@@ -94,13 +92,15 @@ public abstract class DragLoadView extends FrameLayout {
         }
     }
 
-    public void onLoadCancel()
+    public void loadCancel()
     {
         if(onLoadListener != null)
         {
             onLoadListener.onLoadCancel();
         }
     }
+
+    public abstract void viewHidden();
 
 
 

@@ -10,25 +10,26 @@
     <com.zu.sweetalbum.view.HideHeadLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+
         android:id="@+id/UNSPLASHActivity_frameLayout_container">
         <com.zu.sweetalbum.view.TextViewPagerIndicator
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="120dp"
             app:balanceLayout="true"
             app:indicatorHeight="4dp"
             app:textSize="6sp"
             app:indicatorColor="@color/colorAccent"
             android:id="@+id/UNSPLASHActivity_viewPagerIndicator"
             ></com.zu.sweetalbum.view.TextViewPagerIndicator>
-        <com.zu.sweetalbum.view.MyViewPager
+        <android.support.v4.view.ViewPager
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="3dp"
             android:id="@+id/UNSPLASHActivity_ViewPager"
+            android:nestedScrollingEnabled="true"
             >
 
-        </com.zu.sweetalbum.view.MyViewPager>
+        </android.support.v4.view.ViewPager>
     </com.zu.sweetalbum.view.HideHeadLayout>
 
 

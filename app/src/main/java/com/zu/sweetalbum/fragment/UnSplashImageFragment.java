@@ -3,18 +3,16 @@ package com.zu.sweetalbum.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -25,17 +23,15 @@ import com.zu.sweetalbum.module.unsplash.PhotoBean;
 import com.zu.sweetalbum.service.UnSplashService;
 import com.zu.sweetalbum.util.rxbus.Event;
 import com.zu.sweetalbum.util.rxbus.RxBus;
-import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
 import com.zu.sweetalbum.view.AlbumListView.ImageNoGroupedAdapter;
 import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
 import com.zu.sweetalbum.view.CheckableView;
 import com.zu.sweetalbum.view.DownDragLoadView;
+import com.zu.sweetalbum.view.DragLoadView;
 import com.zu.sweetalbum.view.DragToLoadLayout;
 import com.zu.sweetalbum.view.UpDragLoadView;
 
-import java.io.File;
 import java.util.LinkedList;
-import java.util.logging.LogRecord;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -65,10 +61,66 @@ public class UnSplashImageFragment extends Fragment {
 
     private String keyWord;
 
+    private float startLoadGate = 0.7f;
+
     private Handler uiHandler = new Handler();
 
     private UpDragLoadView upDragLoadView;
     private DownDragLoadView downDragLoadView;
+    private DragLoadView.OnDragListener upDragListener = new DragLoadView.OnDragListener(){
+
+        @Override
+        public void onDrag(float process) {
+
+        }
+
+        @Override
+        public void onDragRelease(float process) {
+            if(process > startLoadGate && !waitRefresh)
+            {
+                waitRefresh = true;
+                upDragLoadView.loadStart();
+                acquireData(0, dataLength, true);
+                return;
+            }
+            if(process <= startLoadGate)
+            {
+                upDragLoadView.loadCancel();
+            }
+        }
+
+        @Override
+        public void onDragStart() {
+
+        }
+    };
+
+    private DragLoadView.OnDragListener downDragListener = new DragLoadView.OnDragListener(){
+        @Override
+        public void onDrag(float process) {
+
+        }
+
+        @Override
+        public void onDragRelease(float process) {
+            if(process > startLoadGate && !waitRefresh && !waitLoadMore)
+            {
+                waitLoadMore = true;
+                downDragLoadView.loadStart();
+                acquireData(dataLength, false);
+                return;
+            }
+            if(process <= startLoadGate)
+            {
+                downDragLoadView.loadCancel();
+            }
+        }
+
+        @Override
+        public void onDragStart() {
+
+        }
+    };
 
 
 
@@ -90,12 +142,12 @@ public class UnSplashImageFragment extends Fragment {
                     if(waitLoadMore)
                     {
                         waitLoadMore = false;
-                        downDragLoadView.onLoadComplete(true);
+                        downDragLoadView.loadComplete(true);
                     }
                     if(waitRefresh)
                     {
                         waitRefresh = false;
-                        upDragLoadView.onLoadComplete(true);
+                        upDragLoadView.loadComplete(true);
                     }
                 }
                     break;
@@ -108,12 +160,12 @@ public class UnSplashImageFragment extends Fragment {
                             if(waitLoadMore)
                             {
                                 waitLoadMore = false;
-                                downDragLoadView.onLoadComplete(false);
+                                downDragLoadView.loadComplete(false);
                             }
-                            if(waitRefresh)
+                            if(waitLoadMore)
                             {
-                                waitRefresh = false;
-                                upDragLoadView.onLoadComplete(false);
+                                waitLoadMore = false;
+                                upDragLoadView.loadComplete(false);
                             }
                         }
                     });
@@ -231,6 +283,11 @@ public class UnSplashImageFragment extends Fragment {
 
         dragToLoadLayout = (DragToLoadLayout)root.findViewById(R.id.UnSplashImageFragment_DragToLoadLayout);
 
+        upDragLoadView = (UpDragLoadView)root.findViewById(R.id.UnSplashImageFragment_UpDragLoadView);
+        upDragLoadView.setOnDragListener(upDragListener);
+        downDragLoadView = (DownDragLoadView)root.findViewById(R.id.UnSplashImageFragment_DownDragLoadView);
+        downDragLoadView.setOnDragListener(downDragListener);
+
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -263,15 +320,11 @@ public class UnSplashImageFragment extends Fragment {
         recyclerView.canScrollVertically(1);
 
 
-        zoomLayoutManager.setOnScrollStateListener(dragToLoadLayout.getOnScrollStateListener());
 
 
 
 
-//        upDragLoadView = new UpDragLoadView(getContext());
-//        upDragLoadView.setOnDragListener(upDragListener);
-//        downDragLoadView = new DownDragLoadView(getContext());
-//        downDragLoadView.setOnDragListener(downDragListener);
+
 //
 //        zoomLayoutManager.setUpDragLoadView(upDragLoadView);
 //        zoomLayoutManager.setDownDragLoadView(downDragLoadView);

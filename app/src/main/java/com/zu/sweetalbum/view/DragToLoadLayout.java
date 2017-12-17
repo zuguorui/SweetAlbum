@@ -1,21 +1,23 @@
 package com.zu.sweetalbum.view;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.support.annotation.AttrRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
+import android.support.v4.view.NestedScrollingChildHelper;
+import android.support.v4.view.NestedScrollingParentHelper;
+import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.OverScroller;
 
 import com.zu.sweetalbum.util.MyLog;
-import com.zu.sweetalbum.view.AlbumListView.DragLoadView;
-import com.zu.sweetalbum.view.AlbumListView.ZoomLayoutManager;
+
 
 /**
  * Created by zu on 2017/10/17.
@@ -27,121 +29,83 @@ public class DragToLoadLayout extends FrameLayout{
 
     private DragLoadView upDragLoadView;
     private DragLoadView downDragLoadView;
+    private View contentView;
 
-    private boolean isOnTouch = false;
+    private final NestedScrollingChildHelper mNestedChildHelper;
+    private final NestedScrollingParentHelper mNestedParentHelper;
+
     private boolean layouted = false;
 
-    private DragLoadView.OnLoadListener upOnLoadListsner = new DragLoadView.OnLoadListener() {
+    private DragLoadView.OnLoadListener upOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-
+            stopScroll();
+            Rect visibleRect = getVisibleRect();
+            int offset = visibleRect.top - upDragLoadView.getBottom();
+            if(offset < 0)
+            {
+                startScroll(0, 0, 0, offset, 600);
+            }
         }
 
         @Override
         public void onLoadStart() {
-
+            stopScroll();
+            Rect visibleRect = getVisibleRect();
+            int offset = visibleRect.top - upDragLoadView.getTop();
+            if(offset > 0)
+            {
+                startScroll(0, 0, 0, offset, 600);
+            }
         }
 
         @Override
         public void onLoadCancel() {
-
+            stopScroll();
+            Rect visibleRect = getVisibleRect();
+            int offset = visibleRect.top - upDragLoadView.getBottom();
+            if(offset < 0)
+            {
+                startScroll(0, 0, 0, offset, 600);
+            }
         }
     };
 
     private DragLoadView.OnLoadListener downOnLoadListener = new DragLoadView.OnLoadListener() {
         @Override
         public void onLoadComplete(boolean success) {
-
+            stopScroll();
+            Rect visibleRect = getVisibleRect();
+            int offset = visibleRect.bottom - downDragLoadView.getTop();
+            if(offset > 0)
+            {
+                startScroll(0, 0, 0, offset, 600);
+            }
         }
 
         @Override
         public void onLoadStart() {
-
+            stopScroll();
+            Rect visibleRect = getVisibleRect();
+            int offset = visibleRect.bottom - downDragLoadView.getBottom();
+            if(offset < 0)
+            {
+                startScroll(0, 0, 0, offset, 600);
+            }
         }
 
         @Override
         public void onLoadCancel() {
-
-        }
-    };
-
-    private ValueAnimator animator;
-
-    private ValueAnimator.AnimatorUpdateListener animatorUpdateListener = new ValueAnimator.AnimatorUpdateListener() {
-        @Override
-        public void onAnimationUpdate(ValueAnimator animation) {
-            int dis = (int)animation.getAnimatedValue();
-            offsetChildrenVertical(dis);
-        }
-    };
-
-
-    private int oldX, oldY, newX, newY;
-    private int touchSlop = 1;
-
-    private ZoomLayoutManager.OnScrollStateListener onScrollStateListener = new ZoomLayoutManager.OnScrollStateListener() {
-        /*此处由ZoomLayoutManager负责通知滑动。如果RecyclerView已经不能消耗滑动事件，那么就会由此处接受，然后视情况对View进行布局。此处触发时
-        * UpView和DownView都应该没有显示*/
-        @Override
-        public boolean onScrollState(int originMoveDis, int movedDis) {
-            if(originMoveDis == 0)
-            {
-                return false;
-            }
-            boolean moved = false;
-            int realMoveDis = originMoveDis - movedDis;
-            if(realMoveDis == 0)
-            {
-                return false;
-            }
-
-
-//            int offset = computeScrollOffset(realMoveDis);
-//            if(offset != 0)
-//            {
-//                offsetChildrenVertical(offset);
-//                notifyDragStat(false);
-//                moved = true;
-//            }
-
+            stopScroll();
             Rect visibleRect = getVisibleRect();
-            int offset = computeScrollOffset(originMoveDis, -0.2f);
+            int offset = visibleRect.bottom - downDragLoadView.getTop();
             if(offset > 0)
             {
-
-                if(upDragLoadView.getTop() + offset > visibleRect.top)
-                {
-                    offset = visibleRect.top - upDragLoadView.getTop();
-                }
-                if(offset != 0)
-                {
-                    offsetChildrenVertical(offset);
-                    notifyDragStat(false);
-                    moved = true;
-                    log.d("onScrollState, move UpView, offset = " + offset);
-                }
-            }else
-            {
-                if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
-                {
-                    offset = visibleRect.bottom - downDragLoadView.getBottom();
-                }
-                if(offset != 0)
-                {
-                    offsetChildrenVertical(offset);
-                    notifyDragStat(false);
-                    moved = true;
-                    log.d("onScrollState, move DownView, offset = " + offset);
-                }
+                startScroll(0, 0, 0, offset, 600);
             }
-            return moved;
         }
     };
 
-    public ZoomLayoutManager.OnScrollStateListener getOnScrollStateListener()
-    {
-        return onScrollStateListener;
-    }
 
 
     public DragToLoadLayout(@NonNull Context context) {
@@ -159,101 +123,17 @@ public class DragToLoadLayout extends FrameLayout{
 
     public DragToLoadLayout(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr, @StyleRes int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-
-    }
-
-    /**
-     * 仅负责根据UpView以及DownView的位置进行弹性滑动。
-     * 需要限制每次最大滑动不得超过UpView或者DownView的高度。
-     * */
-    private int computeScrollOffset(int originDis, float adjust)
-    {
-        Rect visibleRect = getVisibleRect();
-        int mOffset = originDis;
-        if(originDis == 0)
-        {
-            return 0;
-        }
-
-
-
-        if(upDragLoadView.getBottom() > visibleRect.top)
-        {
-            int a = Math.abs(visibleRect.top - upDragLoadView.getTop());
-            int height = upDragLoadView.getMeasuredHeight();
-            if(mOffset > 0)
-            {
-                if(mOffset > height)
-                {
-                    mOffset = height;
-                }
-                float process = a * 1.0f / height + adjust;
-                if(process > 1.0f)
-                {
-                    process = 1.0f;
-                }
-                if(process < 0f)
-                {
-                    process = 0f;
-                }
-                int offset = (int)(process * mOffset);
-                if(upDragLoadView.getBottom() + offset < visibleRect.top)
-                {
-                    offset = visibleRect.top - upDragLoadView.getBottom();
-                }
-                if(upDragLoadView.getTop() + offset > visibleRect.top)
-                {
-                    offset = visibleRect.top - upDragLoadView.getTop();
-                }
-                return offset;
-            }else
-            {
-                return mOffset;
-            }
-
-
-        }else if(downDragLoadView.getTop() < visibleRect.bottom)
-        {
-            int a = Math.abs(visibleRect.bottom - downDragLoadView.getBottom());
-            int height = downDragLoadView.getMeasuredHeight();
-            if(mOffset < 0)
-            {
-                if(-mOffset > height)
-                {
-                    mOffset = -height;
-                }
-                float process = a * 1.0f / height + adjust;
-                if(process > 1.0f)
-                {
-                    process = 1.0f;
-                }
-                if(process < 0f)
-                {
-                    process = 0f;
-                }
-                int offset = (int)(process * mOffset);
-                if(downDragLoadView.getTop() + offset > visibleRect.bottom)
-                {
-                    offset = visibleRect.bottom - downDragLoadView.getTop();
-                }
-                if(downDragLoadView.getBottom() + offset < visibleRect.bottom)
-                {
-                    offset = visibleRect.bottom - downDragLoadView.getBottom();
-                }
-                return offset;
-            }else
-            {
-                int upHeight = upDragLoadView.getMeasuredHeight();
-                return mOffset;
-            }
-
-        }
-
-        return originDis;
+        mNestedChildHelper = new NestedScrollingChildHelper(this);
+        mNestedParentHelper = new NestedScrollingParentHelper(this);
+        setNestedScrollingEnabled(true);
     }
 
 
-    private void offsetChildrenVertical(int offset)
+
+
+
+
+    private void offsetChildrenY(int offset)
     {
 
         for(int i = 0; i < getChildCount(); i++)
@@ -273,10 +153,10 @@ public class DragToLoadLayout extends FrameLayout{
             float process = offset * 1.0f / height;
             if(release)
             {
-                upDragLoadView.onDragRelease(process);
+                upDragLoadView.dragRelease(process);
             }else
             {
-                upDragLoadView.onDrag(process);
+                upDragLoadView.drag(process);
             }
 
         }else if(downDragLoadView.getTop() < visibleRect.bottom)
@@ -286,191 +166,741 @@ public class DragToLoadLayout extends FrameLayout{
             float process = offset * 1.0f / height;
             if(release)
             {
-                downDragLoadView.onDragRelease(process);
+                downDragLoadView.dragRelease(process);
             }else
             {
-                downDragLoadView.onDrag(process);
+                downDragLoadView.drag(process);
             }
 
         }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int selfHeight = MeasureSpec.getSize(heightMeasureSpec);
+        int selfWidth = MeasureSpec.getSize(widthMeasureSpec);
+        if(getChildCount() == 0)
+        {
+            setMeasuredDimension(selfWidth, selfHeight);
+            return;
+        }
+
+        checkViews();
+        upDragLoadView = (DragLoadView)getChildAt(0);
+        contentView = getChildAt(1);
+        downDragLoadView = (DragLoadView)getChildAt(2);
+
+        upDragLoadView.setOnLoadListener(upOnLoadListener);
+        downDragLoadView.setOnLoadListener(downOnLoadListener);
+
+
+        int childHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, upDragLoadView.getLayoutParams().height);
+        int childWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, upDragLoadView.getLayoutParams().width);
+        upDragLoadView.measure(childWidthSpec, childHeightSpec);
+
+        childHeightSpec = MeasureSpec.makeMeasureSpec(selfHeight, MeasureSpec.AT_MOST);
+        childWidthSpec = MeasureSpec.makeMeasureSpec(selfWidth, MeasureSpec.EXACTLY);
+        contentView.measure(childWidthSpec, childHeightSpec);
+
+        childHeightSpec = getChildMeasureSpec(heightMeasureSpec, 0, downDragLoadView.getLayoutParams().height);
+        childWidthSpec = getChildMeasureSpec(widthMeasureSpec, 0, downDragLoadView.getLayoutParams().width);
+        downDragLoadView.measure(childWidthSpec, childHeightSpec);
+
+        setMeasuredDimension(selfWidth, selfHeight);
+
+
+
+    }
+
+    private boolean checkViews()
+    {
+        if(getChildCount() != 3)
+        {
+            throw new IllegalStateException("DragToLoadLayout must have 3 views, the first view is head, the second view is content, and the third view is footer");
+        }
+        if(!(getChildAt(0) instanceof DragLoadView) || !(getChildAt(2) instanceof DragLoadView))
+        {
+            throw new IllegalStateException("The first and the last view should be a instance of DragLoadView or its subclass");
+        }
+
+        return true;
     }
 
     /*此处需要注意，由于HideHeadLayout存在，因此该函数会经常执行，故布局函数还需重写*/
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if(changed)
         {
-
-            int childCount = getChildCount();
-            if(childCount != 3)
+            if(getChildCount() == 0 || layouted)
             {
-                throw new IllegalStateException("you must add 3 views to this DragLayout. The first view will be header and the last will be footer");
+                return;
             }
+            checkViews();
 
-            if(!(getChildAt(0) instanceof DragLoadView) || !(getChildAt(2) instanceof DragLoadView))
-            {
-                throw new IllegalStateException("the first and last child view should be DragLoadView");
-            }
             Rect rect = getVisibleRect();
-
-            if(upDragLoadView == null)
-            {
-                upDragLoadView = (DragLoadView)getChildAt(0);
-                upDragLoadView.setOnLoadListener(upOnLoadListsner);
-                upDragLoadView.layout(rect.left, rect.top - upDragLoadView.getMeasuredHeight(), rect.right, rect.top);
-                getChildAt(1).layout(rect.left, rect.top, rect.right, rect.bottom);
-            }
-            if(downDragLoadView == null)
-            {
-                downDragLoadView = (DragLoadView)getChildAt(2);
-                downDragLoadView.setOnLoadListener(downOnLoadListener);
-                downDragLoadView.layout(rect.left, rect.bottom, rect.right, rect.bottom + downDragLoadView.getMeasuredHeight());
-            }
-
-
+            upDragLoadView.layout(rect.left, rect.top - upDragLoadView.getMeasuredHeight(), rect.right, rect.top);
+            contentView.layout(rect.left, rect.top, rect.right, rect.top + contentView.getMeasuredHeight());
+            downDragLoadView.layout(rect.left, rect.bottom, rect.right, rect.bottom + downDragLoadView.getMeasuredHeight());
+//            int top = rect.top - getChildAt(0).getMeasuredHeight();
+//
+//
+//            int left = rect.left;
+//            int right = rect.right;
+//            for(int i = 0; i < getChildCount(); i++)
+//            {
+//                View view = getChildAt(i);
+//                view.layout(left, top, right, top + view.getMeasuredHeight());
+//                top += view.getMeasuredHeight();
+//            }
+            layouted = true;
         }
 
     }
 
 
+    private VelocityTracker velocityTracker = null;
+    private OverScroller scroller = new OverScroller(getContext());
+    private boolean isTouching = false;
+    private static final int INVALID_ID = -1;
+    private int mActivePointId = INVALID_ID;
+    private int downY, downX, oldX, oldY, newX, newY;
+    private int touchSlop = 2;
+    private int lastScrollY = 0;
+    private boolean downInLoadView = false;
+    private boolean parentConsumeNestedScroll = false;
+    private boolean dispatchTouchEventFail = false;
+    private boolean downInSpace = false;
+    private boolean isDragging = false;
 
+
+    private boolean headFirstScroll = true;
+    private boolean reactOnDragHead = true;
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        MotionEvent tempEven = MotionEvent.obtain(ev);
+        if(ev.getActionMasked() == MotionEvent.ACTION_DOWN)
+        {
+//            log.d("ACTION_DOWN");
+
+            stopScroll();
+            isTouching = true;
+        }
+        boolean consumed = super.dispatchTouchEvent(tempEven);
+        if(!consumed)
+        {
+            dispatchTouchEventFail = true;
+        }
+        if(ev.getActionMasked() == MotionEvent.ACTION_CANCEL || ev.getActionMasked() == MotionEvent.ACTION_UP)
+        {
+            //                log.d("ACTION_UP");
+
+            recycleVelocityTracker();
+            isTouching = false;
+            downInLoadView = false;
+            isDragging = false;
+
+            dispatchTouchEventFail = false;
+            downInSpace = false;
+//            animateThread.enqueueTaskDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    animatePosition();
+//                }
+//            }, 600);
+
+            notifyDragStat(true);
+        }
+
+        return downInLoadView || consumed || dispatchTouchEventFail || downInSpace;
+
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+        int pointIndex = -1;
+        boolean intercepted = false;
+        MotionEvent tempEvent = MotionEvent.obtain(ev);
+
+        createOrUpdateVelocityTracker(ev);
+
+        switch (tempEvent.getActionMasked())
+        {
+            case MotionEvent.ACTION_DOWN:
+//                log.d("ACTION_DOWN");
+                mActivePointId = tempEvent.getPointerId(0);
+                pointIndex = tempEvent.findPointerIndex(mActivePointId);
+                if(pointIndex < 0)
+                {
+                    return false;
+                }
+                intercepted = false;
+                newX = downX = (int)tempEvent.getX(pointIndex);
+                newY = downY = (int)tempEvent.getY(pointIndex);
+                mActivePointId = tempEvent.getPointerId(0);
+                boolean downInHead = (downY + getScrollY() <= upDragLoadView.getBottom() && downY + getScrollY() >= upDragLoadView.getTop()
+                        && downX + getScrollX() <= upDragLoadView.getRight() && downX + getScrollX() >= upDragLoadView.getLeft());
+                boolean downInFoot = (downY + getScrollY() <= downDragLoadView.getBottom() && downY + getScrollY() >= downDragLoadView.getTop()
+                        && downX + getScrollX() <= downDragLoadView.getRight() && downX + getScrollX() >= downDragLoadView.getLeft());
+                downInSpace = !(downY + getScrollY() <= contentView.getBottom() && downY + getScrollY() >= contentView.getTop()
+                        && downX + getScrollX() <= contentView.getRight() && downX + getScrollX() >= contentView.getLeft());
+                if(downInHead || downInFoot)
+                {
+                    downInLoadView = true;
+                    log.d("onInterceptTouchEvent downInLoadView = " + downInLoadView);
+                }
+                break;
+//            case MotionEvent.ACTION_POINTER_DOWN:
+//                log.d("ACTION_POINTER_DOWN");
+//                onMultiPointEvent(tempEvent);
+//                break;
+            case MotionEvent.ACTION_MOVE:
+//                log.d("ACTION_MOVE");
+                if(mActivePointId == INVALID_ID)
+                {
+                    return false;
+                }
+                pointIndex = tempEvent.findPointerIndex(mActivePointId);
+                oldX = newX;
+                oldY = newY;
+                newX = (int)tempEvent.getX(pointIndex);
+                newY = (int)tempEvent.getY(pointIndex);
+                int dy = newY - oldY;
+                int disY = newY - downY;
+                if(!isDragging)
+                {
+                    if(dy >= touchSlop || disY >= touchSlop)
+                    {
+                        isDragging = true;
+                    }
+                }
+                if(isDragging && downInLoadView)
+                {
+                    intercepted = true;
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                onSecondPointUp(tempEvent);
+//                log.d("ACTION_POINTER_UP");
+                break;
+            case MotionEvent.ACTION_UP:
+//                log.d("ACTION_UP");
+                break;
+            case MotionEvent.ACTION_CANCEL:
+//                log.d("ACTION_CANCEL");
+                break;
+            default:
+                break;
+
+
+        }
+        return intercepted || dispatchTouchEventFail;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean consumed = false;
+        int pointIndex = -1;
+        MotionEvent tempEvent = MotionEvent.obtain(event);
+//        tempEvent.offsetLocation(0, getScrollY());
+//        log.d("onTouchEvent ev.getY = " + (int)event.getY());
+        createOrUpdateVelocityTracker(event);
+
+        switch (tempEvent.getActionMasked())
+        {
+//            case MotionEvent.ACTION_DOWN:
+////                log.d("ACTION_DOWN");
+//                consumed = false;
+//                newX = downX = (int)tempEvent.getX();
+//                newY = downY = (int)tempEvent.getY();
+//                mActivePointId = tempEvent.getPointerId(0);
+//
+//                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+//                log.d("ACTION_POINTER_DOWN");
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+
+//                log.d("ACTION_MOVE");
+                if(mActivePointId == INVALID_ID)
+                {
+                    return false;
+                }
+                pointIndex = tempEvent.findPointerIndex(mActivePointId);
+                if(pointIndex < 0)
+                {
+                    return false;
+                }
+                oldX = newX;
+                oldY = newY;
+                newX = (int)tempEvent.getX(pointIndex);
+                newY = (int)tempEvent.getY(pointIndex);
+                int dy = newY - oldY;
+                int disY = newY - downY;
+                if(!isDragging)
+                {
+                    if(Math.abs(dy) >= touchSlop || Math.abs(disY) >= touchSlop)
+                    {
+                        isDragging = true;
+                    }
+                }
+                if(isDragging && (downInLoadView || downInSpace))
+                {
+                    if(shouldScrollY(dy) && dy != 0)
+                    {
+                        computeAndScrollY(dy, true);
+//                        scrollBy(0, -offsetY);
+                    }
+                    consumed = true;
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                onSecondPointUp(tempEvent);
+//                log.d("ACTION_POINTER_UP");
+                break;
+            case MotionEvent.ACTION_UP:
+//                log.d("ACTION_UP");
+            case MotionEvent.ACTION_CANCEL:
+//                log.d("ACTION_CANCEL");
+                float velocityY = getYVelocity();
+//                log.d("velocityY = " + velocityY);
+                if(velocityY != 0f)
+                {
+                    startFling(0, (int)velocityY);
+
+                }
+                break;
+            default:
+                break;
+
+
+        }
+        return consumed;
+    }
+
+    @Override
+    public void computeScroll() {
+        if(scroller == null)
+        {
+            return;
+        }else if(!scroller.computeScrollOffset())
+        {
+
+            return;
+        }else
+        {
+            int newScrollY = scroller.getCurrY();
+
+            int dy = newScrollY - lastScrollY;
+            lastScrollY = newScrollY;
+//            log.d("computeScroll, dy = " + dy);
+            if(shouldScrollY(dy))
+            {
+                int offset = computeAndScrollY(dy, isTouching);
+            }else
+            {
+                stopScroll();
+                return;
+            }
+
+            invalidate();
+
+        }
+    }
+
+    private boolean shouldScrollY(int dy)
+    {
+        Rect visibleRect = getVisibleRect();
+
+        if(dy > 0)
+        {
+            if(upDragLoadView.getTop() < visibleRect.top)
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        }else if(dy < 0)
+        {
+            if(downDragLoadView.getBottom() > visibleRect.bottom)
+            {
+                return true;
+            }else
+            {
+                return false;
+            }
+        }
+
+
+        return true;
+
+    }
+
+    private void stopScroll()
+    {
+        if(!scroller.isFinished())
+        {
+            scroller.forceFinished(true);
+        }
+    }
+
+    private void startScroll(int startX, int startY, int dx, int dy, int duration)
+    {
+        stopScroll();
+        lastScrollY = startY;
+        scroller.startScroll(startX, startY, dx, dy, duration);
+        invalidate();
+    }
+
+    private void startFling(int velocityX, int velocityY)
+    {
+        stopScroll();
+        lastScrollY = 0;
+        scroller.fling(0 , 0, velocityX, velocityY, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        invalidate();
+    }
+
+    private void createOrUpdateVelocityTracker(MotionEvent event)
+    {
+        if(velocityTracker == null)
+        {
+            velocityTracker = VelocityTracker.obtain();
+        }
+        velocityTracker.addMovement(event);
+    }
+
+    private float getYVelocity()
+    {
+        if(velocityTracker != null)
+        {
+            velocityTracker.computeCurrentVelocity(1000);
+            return velocityTracker.getYVelocity();
+        }else
+        {
+            return 0;
+        }
+    }
+
+    private void recycleVelocityTracker()
+    {
+        if(velocityTracker != null)
+        {
+            velocityTracker.recycle();
+            velocityTracker = null;
+        }
+    }
+
+    /**
+     * compute the offset and scroll children. Attention that the consumed offset may not equals the real offset of children's scrolling.
+     * @param dy the offset of scroll.
+     * @param hasResistance whether compute resistance. if true, means we reduce dy depends on how much the length views offset.
+     *                      if false, we will offset views definitely by dy expect reaching edge.
+     * @return consumed offset of dy, will not bigger than dy.
+     *
+     *
+     * */
+    private int computeAndScrollY(int dy, boolean hasResistance)
+    {
+        Rect visibleRect = getVisibleRect();
+        int offset = 0;
+        int consumed = dy;
+        if(dy == 0)
+        {
+            return 0;
+        }else if (dy < 0)
+        {
+            if(downDragLoadView.getBottom() <= visibleRect.bottom)
+            {
+                return 0;
+            }
+            int dis = Math.abs(downDragLoadView.getBottom() - visibleRect.bottom);
+            float process = hasResistance ? dis * 1.0f / downDragLoadView.getHeight() + 0.1f : 1.0f;
+            if(process > 1.0f)
+            {
+                process = 1.0f;
+            }
+            offset = (int)(process * dy);
+            if(upDragLoadView.getBottom() > visibleRect.top && upDragLoadView.getBottom() + offset < visibleRect.top)
+            {
+                offset = visibleRect.top - upDragLoadView.getBottom();
+                consumed = (int)(offset / process);
+            }else if(offset + downDragLoadView.getBottom() < visibleRect.bottom)
+            {
+                offset = visibleRect.bottom - downDragLoadView.getBottom();
+                consumed = (int)(offset / process);
+            }
+        }else
+        {
+            if(upDragLoadView.getTop() >= visibleRect.top)
+            {
+                return 0;
+            }
+            int dis = Math.abs(upDragLoadView.getTop() - visibleRect.top);
+            float process = hasResistance ? dis * 1.0f / upDragLoadView.getHeight() + 0.1f : 1.0f;
+            if(process > 1.0f)
+            {
+                process = 1.0f;
+            }
+
+            offset = (int)(process * dy);
+            if(downDragLoadView.getTop() < visibleRect.bottom && downDragLoadView.getTop() + offset > visibleRect.bottom)
+            {
+                offset = visibleRect.bottom - downDragLoadView.getTop();
+                consumed = (int)(offset / process);
+            }else if(upDragLoadView.getTop() + offset > visibleRect.top)
+            {
+                offset = visibleRect.top - upDragLoadView.getTop();
+                consumed = (int)(offset / process);
+            }
+        }
+        offsetChildrenY(offset);
+        if(upDragLoadView.getBottom() - offset > visibleRect.top && upDragLoadView.getBottom() <= visibleRect.top)
+        {
+            upDragLoadView.viewHidden();
+        }
+        if(downDragLoadView.getTop() - offset < visibleRect.bottom && downDragLoadView.getTop() >= visibleRect.bottom)
+        {
+            downDragLoadView.viewHidden();
+        }
+        if(isTouching)
+        {
+            notifyDragStat(false);
+        }
+
+        return consumed;
+    }
+
+    private void onSecondPointUp(MotionEvent event)
+    {
+        int pointIndex = event.getActionIndex();
+        int pointId = event.getPointerId(pointIndex);
+        if(pointId == mActivePointId)
+        {
+            int newPointIndex = pointIndex == 0 ? 1 : 0;
+            mActivePointId = event.getPointerId(newPointIndex);
+            newX = oldX = (int)event.getX(newPointIndex);
+            newY = oldY = (int)event.getY(newPointIndex);
+        }
+    }
 
 
 
 
     private Rect getVisibleRect()
     {
-        int top = getPaddingTop();
-        int left = getPaddingLeft();
-        int right = getWidth() - getPaddingRight();
-        int bottom = getHeight() - getPaddingBottom();
-        Rect rect = new Rect(left, top, right, bottom);
-        return rect;
+        int mScrollY = getScrollY();
+        int mScrollX = getScrollX();
+        int top = getPaddingTop() + mScrollY;
+        int bottom = getMeasuredHeight() - getPaddingBottom() + mScrollY;
+        int left = getPaddingLeft() + mScrollX;
+        int right = getMeasuredWidth() - getPaddingRight() + mScrollX;
+        return new Rect(left, top, right, bottom);
     }
 
-    /**
-     * 决定是否拦截此事件并且对view进行滚动。当UpView或DownView有一个是可见的时候，根据滚动距离滚动并返回true，代表拦截此事件。
-     * 当UpView或DownView都不可见时返回false，代表不拦截此事件。此时会将事件交给RecyclerView。
-     * */
-    private boolean detectScrollWhenDrag(int dis)
-    {
-        int mDis = dis;
+
+    /*NestedScrollingChild APIs*/
+    @Override
+    public void setNestedScrollingEnabled(boolean enabled) {
+        mNestedChildHelper.setNestedScrollingEnabled(enabled);
+    }
+
+    @Override
+    public boolean isNestedScrollingEnabled() {
+        return mNestedChildHelper.isNestedScrollingEnabled();
+    }
+
+    @Override
+    public boolean startNestedScroll(int axes) {
+        return mNestedChildHelper.startNestedScroll(axes);
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        mNestedChildHelper.stopNestedScroll();
+    }
+
+    @Override
+    public boolean hasNestedScrollingParent() {
+        return mNestedChildHelper.hasNestedScrollingParent();
+    }
+
+    @Override
+    public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
+        return mNestedChildHelper.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        return mNestedChildHelper.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
+    }
+
+    @Override
+    public boolean dispatchNestedFling(float velocityX, float velocityY, boolean consumed) {
+        return mNestedChildHelper.dispatchNestedFling(velocityX, velocityY, consumed);
+    }
+
+    @Override
+    public boolean dispatchNestedPreFling(float velocityX, float velocityY) {
+        return mNestedChildHelper.dispatchNestedPreFling(velocityX, velocityY);
+    }
+
+
+    /*NestedScrollingParent APIs*/
+    @Override
+    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+        log.d("onStartNestedScroll");
+        parentConsumeNestedScroll = startNestedScroll(nestedScrollAxes);
+        if((ViewCompat.SCROLL_AXIS_VERTICAL & nestedScrollAxes) == ViewCompat.SCROLL_AXIS_VERTICAL)
+        {
+            return true;
+        }else {
+            return parentConsumeNestedScroll;
+        }
+
+    }
+
+    @Override
+    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+        log.d("onNestedScrollAccepted");
+        mNestedParentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
+
+    }
+
+    @Override
+    public void onStopNestedScroll(View target) {
+        log.d("onStopNestedScroll");
+        mNestedParentHelper.onStopNestedScroll(target);
+//        waitFling = false;
+        if(parentConsumeNestedScroll)
+        {
+            stopNestedScroll();
+            parentConsumeNestedScroll = false;
+        }
+
+    }
+
+    @Override
+    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+//        log.d("onNestedScroll");
+
+        if(shouldScrollY(-dyUnconsumed))
+        {
+            int consumed = computeAndScrollY(-dyUnconsumed, true);
+
+//            scrollBy(0, -scrollOffsetY);
+            dyConsumed += -consumed;
+            dyUnconsumed -= -consumed;
+        }
+        if(parentConsumeNestedScroll)
+        {
+            dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
+        }
+    }
+
+    @Override
+    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        log.d("onNestedPreScroll, dy = " + dy);
         Rect visibleRect = getVisibleRect();
-        if(dis == 0)
+        int[] parentConsumed = new int[2];
+        if(parentConsumeNestedScroll)
         {
-            return false;
+
+            dispatchNestedPreScroll(dx, dy, parentConsumed, null);
+
+        }
+        if((-dy < 0 && upDragLoadView.getBottom() > visibleRect.top)
+                || (-dy > 0 && downDragLoadView.getTop() < visibleRect.bottom))
+        {
+            int restY = dy - parentConsumed[1];
+            int restX = dx - parentConsumed[0];
+            if(shouldScrollY(-restY))
+            {
+                int consumedOffset = computeAndScrollY(-restY, true);
+
+//                scrollBy(0, -scrollOffset);
+                consumed[1] = parentConsumed[1]  + (- consumedOffset);
+            }
+            consumed[0] = parentConsumed[0];
         }
 
-        if(upDragLoadView.getBottom() > visibleRect.top)
-        {
-            if(mDis > 0)
-            {
-                int offset = computeScrollOffset(mDis, 0f);
-                if(offset != 0)
-                {
-                    offsetChildrenVertical(offset);
-                    notifyDragStat(false);
 
-                }
 
-            }else
-            {
-                if(upDragLoadView.getBottom() + mDis < visibleRect.top)
-                {
-                    mDis = visibleRect.top - upDragLoadView.getBottom();
-                }
-                if(mDis != 0)
-                {
-                    offsetChildrenVertical(mDis);
-                    notifyDragStat(false);
-                }
-
-            }
-            return true;
-        }else if(downDragLoadView.getTop() < visibleRect.bottom)
-        {
-            if(mDis < 0)
-            {
-                int offset = computeScrollOffset(mDis, 0f);
-                if(offset != 0)
-                {
-                    offsetChildrenVertical(offset);
-                    notifyDragStat(false);
-
-                }
-            }else
-            {
-                if(downDragLoadView.getTop() + mDis > visibleRect.bottom)
-                {
-                    mDis = visibleRect.bottom - downDragLoadView.getTop();
-                }
-                if(mDis != 0)
-                {
-                    offsetChildrenVertical(mDis);
-                    notifyDragStat(false);
-                }
-
-            }
-            return true;
-        }else
-        {
-            return false;
-        }
 
     }
-
 
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
 
-        boolean consumed = false;
-        if(ev.getPointerCount() != 1)
-        {
-            return super.dispatchTouchEvent(ev);
-        }
-        switch (ev.getActionMasked())
-        {
-            case MotionEvent.ACTION_DOWN:
-                newX = (int)ev.getX();
-                newY = (int)ev.getY();
-                oldX = newX;
-                oldY = newY;
-                isOnTouch = true;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                /*当UpView或者DownView已经在显示时，由此处接管事件。当滑动至UpView以及DownView都消失时，应将事件派发给RecyclerView查看是否会消耗*/
-                oldX = newX;
-                oldY = newY;
-                newX = (int)ev.getX();
-                newY = (int)ev.getY();
-                int dy = newY - oldY;
-                if(Math.abs(dy) >= touchSlop)
-                {
-                    consumed = detectScrollWhenDrag(dy);
-                    log.d("detectScrollWhenDrag returns " + consumed);
-                }
-                break;
-            case MotionEvent.ACTION_UP:
-                isOnTouch = false;
-                notifyDragStat(true);
-                break;
-            default:
-                break;
+//        log.d("onNestedFling, velocityY = " + (int)velocityY + ", consumed = " + consumed);
+        return dispatchNestedFling(velocityX, velocityY, consumed);
 
-        }
-        if(!consumed)
-        {
-            consumed = super.dispatchTouchEvent(ev);
-        }
-        log.d("dispatchTouchEvent returns " + consumed);
-        return consumed;
+//        if(Math.abs(velocityX) > Math.abs(velocityY))
+//        {
+//            return dispatchNestedFling(velocityX, velocityY, consumed);
+//        }else
+//        {
+//            if(((-velocityY > 0 && shouldScrollY(1)) || (-velocityY < 0 && shouldScrollY(-1))) && headFirstScroll)
+//            {
+//                startFling(0, -(int)velocityY);
+//                return true;
+//            }else
+//            {
+//                return dispatchNestedFling(velocityX, velocityY, consumed);
+//            }
+//
+//        }
+
     }
 
     @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return false;
+    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+
+//        log.d("onNestedPreFling, velocityY = " + (int)velocityY);
+            return false;
+
+//        if(Math.abs(velocityX) > Math.abs(velocityY))
+//        {
+//            return dispatchNestedPreFling(velocityX, velocityY);
+//
+//        }else if(dispatchNestedPreFling(velocityX, velocityY)){
+//            return true;
+//        }else
+//        {
+//            if(!headFirstScroll && -velocityY > 0 && upDragLoadView.getBottom() <= getVisibleRect().top)
+//            {
+//                return false;
+//            }
+//            if(((-velocityY > 0 && shouldScrollY(1)) || (-velocityY < 0 && shouldScrollY(-1))))
+//            {
+////                waitFling = !headFirstScroll;
+//                startFling(0, -(int)velocityY);
+////                log.d("onNestedPreFling, start fling");
+//
+//
+//                return true;
+//            }else
+//            {
+//
+//                return dispatchNestedPreFling(velocityX, velocityY);
+//
+//            }
+//
+//        }
+
+
     }
+
+    @Override
+    public int getNestedScrollAxes() {
+        return mNestedParentHelper.getNestedScrollAxes();
+    }
+
+
+
 
 
 }
